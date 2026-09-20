@@ -1,6 +1,6 @@
 window.CMH_CONFIG = {
   GAME_TITLE: 'Capture My Heart! Territory Panic',
-  VERSION: '0.5.2',
+  VERSION: '0.5.3',
   GAMEPLAY: {
     DANGER_BGM_ENABLED: false,
     DANGER_VISUAL_ENABLED: true,

@@ -9,10 +9,12 @@
   const SESSION_STARTED_KEY = 'cmh.analytics.sessionStartedAt';
   const FIRST_SEEN_KEY = 'cmh.analytics.firstSeenAt';
   const LAST_SEEN_KEY = 'cmh.analytics.lastSeenAt';
+  const EXCLUDE_KEY = 'cmh.analytics.exclude';
   let flushing = false;
   let heartbeatTimer = null;
 
-  function enabled(){ return cfg.ENABLED !== false && !!cfg.ENDPOINT && !!cfg.API_KEY; }
+  function isExcluded(){ return safeLocalGet(EXCLUDE_KEY)==='1'; }
+  function enabled(){ return !isExcluded() && cfg.ENABLED !== false && !!cfg.ENDPOINT && !!cfg.API_KEY; }
   function uid(prefix='ev'){ return prefix+'_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,9); }
   function safeLocalGet(k){ try{return localStorage.getItem(k)}catch(_){return null} }
   function safeLocalSet(k,v){ try{localStorage.setItem(k,v)}catch(_){} }
@@ -129,6 +131,7 @@
     if(document.visibilityState==='visible')track('session_heartbeat',{visible:true});
   }
   function init(){
+    if(isExcluded())return;
     visitorId();sessionId();
     safeLocalSet(LAST_SEEN_KEY,new Date().toISOString());
     track('session_start',{
@@ -151,6 +154,6 @@
     window.addEventListener('online',flush);
   }
 
-  window.CMH_ANALYTICS={track,flush,sessionId,visitorId,visitNo,sessionSeconds,enabled};
+  window.CMH_ANALYTICS={track,flush,sessionId,visitorId,visitNo,sessionSeconds,enabled,isExcluded};
   init();
 })();

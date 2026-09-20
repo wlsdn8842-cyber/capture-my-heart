@@ -1,6 +1,6 @@
 window.CMH_CONFIG = {
   GAME_TITLE: 'Capture My Heart! Territory Panic',
-  VERSION: '0.5.3',
+  VERSION: '0.5.4',
   GAMEPLAY: {
     DANGER_BGM_ENABLED: false,
     DANGER_VISUAL_ENABLED: true,
@@ -23,6 +23,11 @@ window.CMH_CONFIG = {
     MAX_LOCAL_QUEUE: 50
   },
   ANALYTICS: {
+    ENABLED: true,
+    ENDPOINT: 'https://cvfmikycscmfjmooxhni.supabase.co/rest/v1/cmh_analytics_events',
+    API_KEY: 'sb_publishable_AlQwZgMrOCznUo4LQePZiw_maIjWv6w',
+    REQUEST_TIMEOUT_MS: 5500,
+    MAX_LOCAL_QUEUE: 200,
     GA_MEASUREMENT_ID: ''
   }
 };

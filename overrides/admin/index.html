@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0b0710">
+  <title>CMH Admin — 플레이 분석</title>
+  <link rel="stylesheet" href="./admin.css">
+</head>
+<body>
+  <div class="bg-glow glow-a"></div><div class="bg-glow glow-b"></div>
+  <header class="topbar">
+    <div>
+      <div class="eyebrow">CAPTURE MY HEART!</div>
+      <h1>플레이 분석실 <span>♥</span></h1>
+    </div>
+    <div class="top-actions">
+      <span id="lastUpdated" class="updated">—</span>
+      <button id="refreshBtn" class="icon-btn" title="새로고침">↻</button>
+      <button id="lockBtn" class="icon-btn" title="잠금">🔒</button>
+    </div>
+  </header>
+
+  <main id="dashboard" class="wrap hidden">
+    <section class="range-row">
+      <div class="segmented" id="rangeTabs">
+        <button data-range="today">오늘</button>
+        <button data-range="7d" class="active">7일</button>
+        <button data-range="30d">30일</button>
+        <button data-range="all">전체</button>
+      </div>
+      <div class="live-dot"><i></i> 60초 자동 갱신</div>
+    </section>
+
+    <section class="metric-grid">
+      <article class="metric"><span>방문자</span><strong id="mVisitors">0</strong><small>익명 브라우저 기준</small></article>
+      <article class="metric"><span>세션</span><strong id="mSessions">0</strong><small>접속 회수</small></article>
+      <article class="metric hot"><span>게임 시작</span><strong id="mStarts">0</strong><small id="mStartRate">시작률 0%</small></article>
+      <article class="metric"><span>평균 세션</span><strong id="mAvgTime">0초</strong><small>측정된 체류시간</small></article>
+      <article class="metric"><span>재방문</span><strong id="mReturning">0</strong><small>2회 이상 방문</small></article>
+      <article class="metric"><span>최고 도달</span><strong id="mMaxStage">Stage 0</strong><small>현재 기간 기준</small></article>
+      <article class="metric"><span>완주</span><strong id="mComplete">0</strong><small>Stage 10 완료</small></article>
+      <article class="metric"><span>피드백</span><strong id="mFeedback">0</strong><small id="mFun">평균 재미 —</small></article>
+    </section>
+
+    <section class="grid two">
+      <article class="panel">
+        <div class="panel-head"><div><span class="kicker">FUNNEL</span><h2>스테이지 도달 퍼널</h2></div><span class="hint">진입 → 80%+ 클리어</span></div>
+        <div id="funnel" class="funnel"></div>
+      </article>
+      <article class="panel">
+        <div class="panel-head"><div><span class="kicker">FAILURE</span><h2>사망 원인</h2></div><span class="hint">LIFE 손실 기준</span></div>
+        <div id="deaths" class="rank-list empty-state">아직 데이터가 없습니다.</div>
+      </article>
+    </section>
+
+    <section class="grid two">
+      <article class="panel">
+        <div class="panel-head"><div><span class="kicker">TRAFFIC</span><h2>유입 경로</h2></div><span class="hint">세션 기준</span></div>
+        <div id="sources" class="rank-list"></div>
+      </article>
+      <article class="panel">
+        <div class="panel-head"><div><span class="kicker">DEVICE</span><h2>기기 비중</h2></div><span class="hint">세션 기준</span></div>
+        <div id="devices" class="device-grid"></div>
+      </article>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><div><span class="kicker">TREND</span><h2>일별 유입</h2></div><span class="hint">한국 시간 기준</span></div>
+      <div id="daily" class="daily-chart"></div>
+    </section>
+
+    <section class="grid two">
+      <article class="panel">
+        <div class="panel-head"><div><span class="kicker">FEEDBACK</span><h2>최신 피드백</h2></div><span class="hint" id="feedbackSummary">—</span></div>
+        <div id="feedbackList" class="feedback-list"></div>
+      </article>
+      <article class="panel">
+        <div class="panel-head"><div><span class="kicker">SESSIONS</span><h2>최근 플레이</h2></div><span class="hint">개인정보 없이 요약</span></div>
+        <div class="table-wrap"><table><thead><tr><th>시간</th><th>도달</th><th>플레이</th><th>사망</th><th>기기</th></tr></thead><tbody id="sessionRows"></tbody></table></div>
+      </article>
+    </section>
+
+    <p class="footnote">※ 익명 분석 데이터입니다. 이름·이메일·정확한 위치는 플레이 분석에 수집하지 않습니다.</p>
+  </main>
+
+  <div id="loginGate" class="gate">
+    <div class="login-card">
+      <div class="logo-heart">♥</div>
+      <div class="eyebrow">OWNER ONLY</div>
+      <h2>관리자 분석실</h2>
+      <p>관리자 키를 입력하면 현재 플레이 데이터를 볼 수 있습니다.</p>
+      <form id="loginForm">
+        <input id="adminKey" type="password" autocomplete="current-password" placeholder="관리자 키" required>
+        <button type="submit">분석실 열기</button>
+      </form>
+      <div id="loginError" class="login-error"></div>
+      <small>키는 이 탭의 세션에만 저장됩니다.</small>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+  <script src="./admin.js"></script>
+</body>
+</html>

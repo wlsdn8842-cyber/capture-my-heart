@@ -42,6 +42,9 @@ jobs:
           cp overrides/feedback.js _site/feedback.js
           cp overrides/sw.js _site/sw.js
 
+          # Apply v0.5.3 gameplay-feedback hotfixes.
+          python overrides/playfeel_patch.py _site
+
           # Cloudflare-only files are not part of the static GitHub Pages build.
           rm -rf _site/functions
           rm -f _site/wrangler.toml.example
@@ -51,7 +54,10 @@ jobs:
           test -f _site/game.js
           test -f _site/assets/images/title.webp
           grep -q "cmh_feedback" _site/config.js
-          grep -q "Supabase" _site/feedback.js || true
+          grep -q "autoRetract" _site/game.js
+          grep -q "dashTouchBtn" _site/index.html
+          grep -q "avoid-left" _site/styles.css
+          node --check _site/game.js
           echo "Prepared $(find _site -type f | wc -l) files"
 
       - name: Upload Pages artifact

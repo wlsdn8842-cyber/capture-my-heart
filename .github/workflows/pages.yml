@@ -36,12 +36,22 @@ jobs:
           mkdir -p _site _extract
           unzip -q capture_my_heart_v0_5_1.zip -d _extract
           cp -a _extract/capture_my_heart_v0_5_1/. _site/
+
+          # GitHub Pages public-beta overrides.
+          cp overrides/config.js _site/config.js
+          cp overrides/feedback.js _site/feedback.js
+          cp overrides/sw.js _site/sw.js
+
+          # Cloudflare-only files are not part of the static GitHub Pages build.
           rm -rf _site/functions
           rm -f _site/wrangler.toml.example
+
           touch _site/.nojekyll
           test -f _site/index.html
           test -f _site/game.js
           test -f _site/assets/images/title.webp
+          grep -q "cmh_feedback" _site/config.js
+          grep -q "Supabase" _site/feedback.js || true
           echo "Prepared $(find _site -type f | wc -l) files"
 
       - name: Upload Pages artifact

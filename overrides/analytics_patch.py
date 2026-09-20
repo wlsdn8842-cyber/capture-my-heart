@@ -55,4 +55,9 @@ rep(Path('index.html'),
 '  <script src="analytics.js"></script>\n  <script src="feedback.js"></script>\n  <script src="game.js"></script>',
 'analytics script')
 
+rep(Path('index.html'),
+'<div class="version">v0.5.3 playfeel beta</div>',
+'<div class="version">v0.5.4 analytics beta</div>',
+'version label')
+
 print('analytics patch applied')

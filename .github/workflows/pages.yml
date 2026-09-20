@@ -1,0 +1,56 @@
+name: Deploy Capture My Heart to GitHub Pages
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - name: Prepare game files
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf _site _extract
+          mkdir -p _site _extract
+          unzip -q capture_my_heart_v0_5_1.zip -d _extract
+          cp -a _extract/capture_my_heart_v0_5_1/. _site/
+          rm -rf _site/functions
+          rm -f _site/wrangler.toml.example
+          touch _site/.nojekyll
+          test -f _site/index.html
+          test -f _site/game.js
+          test -f _site/assets/images/title.webp
+          echo "Prepared $(find _site -type f | wc -l) files"
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./_site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

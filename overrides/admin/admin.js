@@ -34,7 +34,14 @@
     return r.json();
   }
   async function fetchData(key=adminKey){
-    return rpc('cmh_admin_dashboard',{p_token:key,p_range:range});
+    const [data, returning]=await Promise.all([
+      rpc('cmh_admin_dashboard',{p_token:key,p_range:range}),
+      rpc('cmh_admin_returning_stats',{p_token:key,p_range:range})
+    ]);
+    data.totals=data.totals||{};
+    data.totals.returningVisitors=Number(returning?.returningVisitors||0);
+    data.totals.returningSessions=Number(returning?.returningSessions||0);
+    return data;
   }
   async function setExcludedVisitor(visitorId,excluded){
     return rpc('cmh_admin_set_excluded_visitor',{p_token:adminKey,p_visitor_id:visitorId,p_excluded:excluded});
@@ -85,6 +92,7 @@
     $('#mStartRate').textContent='시작률 '+(t.startRate||0)+'%';
     $('#mAvgTime').textContent=duration(t.avgSessionSec);
     $('#mReturning').textContent=fmt(t.returningVisitors);
+    $('#mReturningSessions').textContent='재방문 세션 '+fmt(t.returningSessions)+'회';
     $('#mMaxStage').textContent='Stage '+fmt(t.maxStage);
     $('#mComplete').textContent=fmt(t.completions);
     $('#mFeedback').textContent=fmt(t.feedback);
@@ -173,7 +181,7 @@
   function renderSessions(rows){
     const body=$('#sessionRows');
     if(!rows.length){body.innerHTML='<tr><td colspan="5">아직 플레이 데이터가 없습니다.</td></tr>';return}
-    body.innerHTML=rows.map(x=>'<tr><td>'+kst(x.startedAt)+'</td><td><span class="stage-pill">S'+(x.maxStage||0)+'</span></td><td>'+duration(x.seconds)+'</td><td>'+fmt(x.deaths)+'</td><td>'+esc(x.device||'unknown')+(x.visitNo>1?' · 재방문':'')+'</td></tr>').join('');
+    body.innerHTML=rows.map(x=>'<tr><td>'+kst(x.startedAt)+'</td><td><span class="stage-pill">S'+(x.maxStage||0)+'</span></td><td>'+duration(x.seconds)+'</td><td>'+fmt(x.deaths)+'</td><td>'+esc(x.device||'unknown')+(x.visitNo>1?' · '+x.visitNo+'회차':' · 첫 방문')+'</td></tr>').join('');
   }
 
   $('#loginForm').addEventListener('submit',login);

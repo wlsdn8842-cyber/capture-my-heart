@@ -44,6 +44,10 @@ jobs:
           cp overrides/privacy.html _site/privacy.html
           cp overrides/sw.js _site/sw.js
 
+          # Private owner dashboard UI (data remains behind the Edge Function key).
+          mkdir -p _site/admin
+          cp -a overrides/admin/. _site/admin/
+
           # Apply gameplay and analytics patches to the stable beta bundle.
           python overrides/playfeel_patch.py _site
           python overrides/analytics_patch.py _site
@@ -56,17 +60,21 @@ jobs:
           test -f _site/index.html
           test -f _site/game.js
           test -f _site/analytics.js
+          test -f _site/admin/index.html
+          test -f _site/admin/admin.js
           test -f _site/assets/images/title.webp
           grep -q "cmh_feedback" _site/config.js
           grep -q "cmh_analytics_events" _site/config.js
           grep -q "CMH_ANALYTICS" _site/game.js
           grep -q "analytics.js" _site/index.html
+          grep -q "cmh-admin-dashboard" _site/admin/admin.js
           grep -q "autoRetract" _site/game.js
           grep -q "dashTouchBtn" _site/index.html
           grep -q "avoid-left" _site/styles.css
           node --check _site/game.js
           node --check _site/analytics.js
           node --check _site/feedback.js
+          node --check _site/admin/admin.js
           echo "Prepared $(find _site -type f | wc -l) files"
 
       - name: Upload Pages artifact

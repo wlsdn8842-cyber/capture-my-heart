@@ -1,5 +1,6 @@
 (() => {
-  const ENDPOINT='https://cvfmikycscmfjmooxhni.supabase.co/functions/v1/cmh-admin-dashboard';
+  const ENDPOINT='https://cvfmikycscmfjmooxhni.supabase.co/rest/v1/rpc/cmh_admin_dashboard';
+  const API_KEY='sb_publishable_AlQwZgMrOCznUo4LQePZiw_maIjWv6w';
   const KEY_STORE='cmh.admin.sessionKey';
   let adminKey=sessionStorage.getItem(KEY_STORE)||'';
   let range='7d', timer=null;
@@ -12,9 +13,21 @@
   const toast=msg=>{const t=$('#toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1800)};
 
   async function fetchData(key=adminKey){
-    const r=await fetch(ENDPOINT+'?range='+encodeURIComponent(range),{headers:{'x-admin-token':key},cache:'no-store'});
-    if(r.status===401)throw new Error('AUTH');
-    if(!r.ok)throw new Error('HTTP '+r.status);
+    const r=await fetch(ENDPOINT,{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'apikey':API_KEY,
+        'Authorization':'Bearer '+API_KEY
+      },
+      body:JSON.stringify({p_token:key,p_range:range}),
+      cache:'no-store'
+    });
+    if(!r.ok){
+      let msg='';try{msg=await r.text()}catch(_){}
+      if(r.status===401||r.status===403||/unauthorized/i.test(msg))throw new Error('AUTH');
+      throw new Error('HTTP '+r.status);
+    }
     return r.json();
   }
   async function login(e){

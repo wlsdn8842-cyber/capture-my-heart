@@ -67,7 +67,7 @@ jobs:
           grep -q "cmh_analytics_events" _site/config.js
           grep -q "CMH_ANALYTICS" _site/game.js
           grep -q "analytics.js" _site/index.html
-          grep -q "cmh-admin-dashboard" _site/admin/admin.js
+          grep -q "cmh_admin_dashboard" _site/admin/admin.js
           grep -q "autoRetract" _site/game.js
           grep -q "dashTouchBtn" _site/index.html
           grep -q "avoid-left" _site/styles.css

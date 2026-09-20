@@ -44,6 +44,10 @@ jobs:
           cp overrides/privacy.html _site/privacy.html
           cp overrides/sw.js _site/sw.js
 
+          # Stage 1 90%+ bonus scene asset.
+          mkdir -p _site/assets/bonus
+          cp overrides/assets/stage1_maid_bonus.webm _site/assets/bonus/stage1_maid_bonus.webm
+
           # Private owner dashboard UI (data remains behind the Edge Function key).
           mkdir -p _site/admin
           cp -a overrides/admin/. _site/admin/
@@ -51,6 +55,7 @@ jobs:
           # Apply gameplay and analytics patches to the stable beta bundle.
           python overrides/playfeel_patch.py _site
           python overrides/analytics_patch.py _site
+          python overrides/bonus_scene_patch.py _site
 
           # Cloudflare-only files are not part of the static GitHub Pages build.
           rm -rf _site/functions
@@ -62,12 +67,15 @@ jobs:
           test -f _site/analytics.js
           test -f _site/admin/index.html
           test -f _site/admin/admin.js
+          test -f _site/assets/bonus/stage1_maid_bonus.webm
           test -f _site/assets/images/title.webp
           grep -q "cmh_feedback" _site/config.js
           grep -q "cmh_analytics_events" _site/config.js
           grep -q "CMH_ANALYTICS" _site/game.js
           grep -q "analytics.js" _site/index.html
           grep -q "cmh_admin_dashboard" _site/admin/admin.js
+          grep -q "bonus_scene_view" _site/game.js
+          grep -q "stage1_maid_bonus.webm" _site/game.js
           grep -q "autoRetract" _site/game.js
           grep -q "dashTouchBtn" _site/index.html
           grep -q "avoid-left" _site/styles.css

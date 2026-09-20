@@ -1,9 +1,12 @@
 (() => {
-  const ENDPOINT='https://cvfmikycscmfjmooxhni.supabase.co/rest/v1/rpc/cmh_admin_dashboard';
+  const RPC_BASE='https://cvfmikycscmfjmooxhni.supabase.co/rest/v1/rpc/';
   const API_KEY='sb_publishable_AlQwZgMrOCznUo4LQePZiw_maIjWv6w';
   const KEY_STORE='cmh.admin.sessionKey';
+  const VISITOR_KEY='cmh.analytics.visitor';
+  const EXCLUDE_KEY='cmh.analytics.exclude';
+  const QUEUE_KEY='cmh.analytics.queue';
   let adminKey=sessionStorage.getItem(KEY_STORE)||'';
-  let range='7d', timer=null;
+  let range='7d', timer=null, currentData=null;
 
   const $=s=>document.querySelector(s);
   const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
@@ -12,15 +15,15 @@
   const kst=iso=>new Intl.DateTimeFormat('ko-KR',{timeZone:'Asia/Seoul',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).format(new Date(iso));
   const toast=msg=>{const t=$('#toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1800)};
 
-  async function fetchData(key=adminKey){
-    const r=await fetch(ENDPOINT,{
+  async function rpc(name,body){
+    const r=await fetch(RPC_BASE+name,{
       method:'POST',
       headers:{
         'Content-Type':'application/json',
         'apikey':API_KEY,
         'Authorization':'Bearer '+API_KEY
       },
-      body:JSON.stringify({p_token:key,p_range:range}),
+      body:JSON.stringify(body),
       cache:'no-store'
     });
     if(!r.ok){
@@ -29,6 +32,22 @@
       throw new Error('HTTP '+r.status);
     }
     return r.json();
+  }
+  async function fetchData(key=adminKey){
+    return rpc('cmh_admin_dashboard',{p_token:key,p_range:range});
+  }
+  async function setExcludedVisitor(visitorId,excluded){
+    return rpc('cmh_admin_set_excluded_visitor',{p_token:adminKey,p_visitor_id:visitorId,p_excluded:excluded});
+  }
+  function browserVisitorId(){try{return localStorage.getItem(VISITOR_KEY)||''}catch(_){return ''}}
+  function localExcluded(){try{return localStorage.getItem(EXCLUDE_KEY)==='1'}catch(_){return false}}
+  function setLocalExcluded(on){
+    try{
+      if(on){
+        localStorage.setItem(EXCLUDE_KEY,'1');
+        localStorage.removeItem(QUEUE_KEY);
+      }else localStorage.removeItem(EXCLUDE_KEY);
+    }catch(_){}
   }
   async function login(e){
     e?.preventDefault();
@@ -58,6 +77,7 @@
   function stopAuto(){if(timer)clearInterval(timer);timer=null}
 
   function render(d){
+    currentData=d;
     const t=d.totals||{};
     $('#mVisitors').textContent=fmt(t.visitors);
     $('#mSessions').textContent=fmt(t.sessions);
@@ -70,6 +90,7 @@
     $('#mFeedback').textContent=fmt(t.feedback);
     $('#mFun').textContent=d.feedbackSummary?.avgFun?('평균 재미 '+d.feedbackSummary.avgFun+' / 5'):'평균 재미 —';
     $('#lastUpdated').textContent='업데이트 '+kst(d.generatedAt);
+    syncDevFilter(d);
 
     renderFunnel(d.funnel||[]);
     renderRank('#deaths',(d.deaths||[]).map(x=>({name:x.reason,value:x.count})));
@@ -79,6 +100,44 @@
     renderFeedback(d.latestFeedback||[],d.feedbackSummary||{});
     renderSessions(d.recentSessions||[]);
   }
+  function syncDevFilter(d){
+    const btn=$('#devExcludeBtn'), count=$('#excludedCount');
+    if(!btn||!count)return;
+    const vid=browserVisitorId();
+    const ids=Array.isArray(d.excludedVisitorIds)?d.excludedVisitorIds:[];
+    count.textContent='제외 '+fmt(d.totals?.excludedVisitors||0)+'명';
+    if(!vid){
+      btn.disabled=true;
+      btn.classList.remove('on');
+      btn.textContent='게임을 먼저 1회 실행';
+      return;
+    }
+    const serverOn=ids.includes(vid);
+    btn.disabled=false;
+    btn.classList.toggle('on',serverOn);
+    btn.textContent=serverOn?'✓ 이 브라우저 제외 중':'이 브라우저도 통계에 포함';
+    if(serverOn!==localExcluded())setLocalExcluded(serverOn);
+  }
+  async function toggleDevExclude(){
+    const vid=browserVisitorId();
+    if(!vid){toast('같은 브라우저에서 게임을 한 번 실행한 뒤 다시 와주세요.');return}
+    const ids=Array.isArray(currentData?.excludedVisitorIds)?currentData.excludedVisitorIds:[];
+    const next=!ids.includes(vid);
+    const btn=$('#devExcludeBtn');
+    btn.disabled=true;btn.textContent='적용 중…';
+    try{
+      await setExcludedVisitor(vid,next);
+      setLocalExcluded(next);
+      await refresh(true);
+      toast(next?'내 테스트 플레이를 통계에서 제외했습니다.':'이 브라우저를 다시 통계에 포함했습니다.');
+    }catch(e){
+      if(e.message==='AUTH')lock(); else toast('테스트 제외 설정에 실패했습니다.');
+    }finally{
+      btn.disabled=false;
+      if(currentData)syncDevFilter(currentData);
+    }
+  }
+
   function renderFunnel(rows){
     const max=Math.max(1,...rows.map(r=>r.entrants));
     $('#funnel').innerHTML=rows.map(r=>{
@@ -120,6 +179,7 @@
   $('#loginForm').addEventListener('submit',login);
   $('#refreshBtn').addEventListener('click',()=>refresh(false));
   $('#lockBtn').addEventListener('click',lock);
+  $('#devExcludeBtn').addEventListener('click',toggleDevExclude);
   $('#rangeTabs').addEventListener('click',e=>{
     const b=e.target.closest('button[data-range]');if(!b)return;
     range=b.dataset.range;document.querySelectorAll('#rangeTabs button').forEach(x=>x.classList.toggle('active',x===b));refresh(true);

@@ -127,6 +127,8 @@ jobs:
           grep -q "ca-pub-6414931308880829" _site/config.js
           grep -q "drawPlayerVisual" _site/game.js
           grep -q "drawEnemyVisual" _site/game.js
+          grep -q "v0.6.5 focus pause hotfix" _site/game.js
+          grep -q "cmh-core-v0.6.5" _site/sw.js
           grep -q "v0.6.4 visual refresh" _site/index.html
           node --check _site/game.js
           node --check _site/analytics.js

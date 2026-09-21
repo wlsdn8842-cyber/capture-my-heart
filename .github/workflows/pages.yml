@@ -83,6 +83,7 @@ jobs:
             # Force existing clients onto the current bonus-scene build.
             sed -i 's/cmh-core-v0.5.4.2/cmh-core-v0.5.8/' _site/sw.js
           fi
+          python overrides/visual_refresh_patch.py _site
 
           # Cloudflare-only files are not part of the static GitHub Pages build.
           rm -rf _site/functions
@@ -124,6 +125,9 @@ jobs:
           grep -q "v0.6.1 adsense verify" _site/index.html
           grep -q "ca-pub-6414931308880829" _site/index.html
           grep -q "ca-pub-6414931308880829" _site/config.js
+          grep -q "drawPlayerVisual" _site/game.js
+          grep -q "drawEnemyVisual" _site/game.js
+          grep -q "v0.6.4 visual refresh" _site/index.html
           node --check _site/game.js
           node --check _site/analytics.js
           node --check _site/feedback.js

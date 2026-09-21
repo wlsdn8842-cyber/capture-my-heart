@@ -44,13 +44,22 @@ jobs:
           cp overrides/privacy.html _site/privacy.html
           cp overrides/sw.js _site/sw.js
 
-          # Stage 1 90%+ bonus scene asset. The public build stays stable until
-          # the binary WebM is present in the repository.
+          # 90%+ bonus scene assets.
           BONUS_SCENE_READY=0
+          STAGE2_BONUS_READY=0
           if [ -f overrides/assets/stage1_maid_bonus.webm ]; then
             mkdir -p _site/assets/bonus
             cp overrides/assets/stage1_maid_bonus.webm _site/assets/bonus/stage1_maid_bonus.webm
             BONUS_SCENE_READY=1
+          fi
+          if [ -f overrides/assets/stage2_racinggirl_bonus.webm ]; then
+            mkdir -p _site/assets/bonus
+            cp overrides/assets/stage2_racinggirl_bonus.webm _site/assets/bonus/stage2_racinggirl_bonus.webm
+            STAGE2_BONUS_READY=1
+          elif [ -f 'overrides/assets/Stage2_RacingGirl_Bonus_REACH_HOLD_1p5s(2).webm' ]; then
+            mkdir -p _site/assets/bonus
+            cp 'overrides/assets/Stage2_RacingGirl_Bonus_REACH_HOLD_1p5s(2).webm' _site/assets/bonus/stage2_racinggirl_bonus.webm
+            STAGE2_BONUS_READY=1
           fi
 
           # Private owner dashboard UI (data remains behind the Edge Function key).
@@ -62,8 +71,8 @@ jobs:
           python overrides/analytics_patch.py _site
           if [ "$BONUS_SCENE_READY" = "1" ]; then
             python overrides/bonus_scene_patch.py _site
-            # Force existing clients onto the bonus-scene build.
-            sed -i 's/cmh-core-v0.5.4.2/cmh-core-v0.5.5/' _site/sw.js
+            # Force existing clients onto the current bonus-scene build.
+            sed -i 's/cmh-core-v0.5.4.2/cmh-core-v0.5.6/' _site/sw.js
           fi
 
           # Cloudflare-only files are not part of the static GitHub Pages build.
@@ -86,6 +95,10 @@ jobs:
             test -f _site/assets/bonus/stage1_maid_bonus.webm
             grep -q "bonus_scene_view" _site/game.js
             grep -q "stage1_maid_bonus.webm" _site/game.js
+            grep -q "stage2_racinggirl_bonus.webm" _site/game.js
+          fi
+          if [ "$STAGE2_BONUS_READY" = "1" ]; then
+            test -f _site/assets/bonus/stage2_racinggirl_bonus.webm
           fi
           grep -q "autoRetract" _site/game.js
           grep -q "dashTouchBtn" _site/index.html

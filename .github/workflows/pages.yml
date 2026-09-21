@@ -47,6 +47,7 @@ jobs:
           # 90%+ bonus scene assets.
           BONUS_SCENE_READY=0
           STAGE2_BONUS_READY=0
+          STAGE3_BONUS_READY=0
           if [ -f overrides/assets/stage1_maid_bonus.webm ]; then
             mkdir -p _site/assets/bonus
             cp overrides/assets/stage1_maid_bonus.webm _site/assets/bonus/stage1_maid_bonus.webm
@@ -60,6 +61,11 @@ jobs:
             mkdir -p _site/assets/bonus
             cp 'overrides/assets/Stage2_RacingGirl_Bonus_REACH_HOLD_1p5s(2).webm' _site/assets/bonus/stage2_racinggirl_bonus.webm
             STAGE2_BONUS_READY=1
+          fi
+          if [ -f overrides/assets/stage3_officelady_bonus.webm ]; then
+            mkdir -p _site/assets/bonus
+            cp overrides/assets/stage3_officelady_bonus.webm _site/assets/bonus/stage3_officelady_bonus.webm
+            STAGE3_BONUS_READY=1
           fi
 
           # Private owner dashboard UI (data remains behind the Edge Function key).
@@ -99,10 +105,14 @@ jobs:
             grep -q "bonus_scene_view" _site/game.js
             grep -q "stage1_maid_bonus.webm" _site/game.js
             grep -q "stage2_racinggirl_bonus.webm" _site/game.js
+            grep -q "stage3_officelady_bonus.webm" _site/game.js
             grep -q "bonusToggleBtn" _site/game.js
           fi
           if [ "$STAGE2_BONUS_READY" = "1" ]; then
             test -f _site/assets/bonus/stage2_racinggirl_bonus.webm
+          fi
+          if [ "$STAGE3_BONUS_READY" = "1" ]; then
+            test -f _site/assets/bonus/stage3_officelady_bonus.webm
           fi
           grep -q "autoRetract" _site/game.js
           grep -q "dashTouchBtn" _site/index.html

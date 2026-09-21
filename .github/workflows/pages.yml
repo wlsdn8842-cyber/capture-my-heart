@@ -68,11 +68,12 @@ jobs:
 
           # Apply gameplay and analytics patches to the stable beta bundle.
           python overrides/playfeel_patch.py _site
+          python overrides/mobile_controls_patch.py _site
           python overrides/analytics_patch.py _site
           if [ "$BONUS_SCENE_READY" = "1" ]; then
             python overrides/bonus_scene_patch.py _site
             # Force existing clients onto the current bonus-scene build.
-            sed -i 's/cmh-core-v0.5.4.2/cmh-core-v0.5.7/' _site/sw.js
+            sed -i 's/cmh-core-v0.5.4.2/cmh-core-v0.5.8/' _site/sw.js
           fi
 
           # Cloudflare-only files are not part of the static GitHub Pages build.
@@ -103,6 +104,9 @@ jobs:
           fi
           grep -q "autoRetract" _site/game.js
           grep -q "dashTouchBtn" _site/index.html
+          grep -q "moveJoystick" _site/index.html
+          grep -q "bindHoldButton" _site/game.js
+          grep -q "setPointerCapture" _site/game.js
           grep -q "avoid-left" _site/styles.css
           node --check _site/game.js
           node --check _site/analytics.js

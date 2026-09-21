@@ -10,7 +10,7 @@ def rep(path, old, new, label):
         raise SystemExit(f'bonus scene patch failed: {label}')
     p.write_text(s.replace(old,new,1),encoding='utf-8')
 
-# Stage 1-2 at 90%+ use their WebM bonus scenes in the clear modal.
+# Stage 1-3 at 90%+ use their WebM bonus scenes in the clear modal.
 rep(Path('game.js'),
 """  const continueBtn=!perfect?`<button id="keepBtn" class="btn secondary">KEEP PLAYING · ${target}</button>`:'';
   const artSrc=stageSrc(state.stage);
@@ -22,7 +22,7 @@ rep(Path('game.js'),
       </div>""",
 """  const continueBtn=!perfect?`<button id="keepBtn" class="btn secondary">KEEP PLAYING · ${target}</button>`:'';
   const artSrc=stageSrc(state.stage);
-  const bonusSceneSrc=state.stage===1?'assets/bonus/stage1_maid_bonus.webm':state.stage===2?'assets/bonus/stage2_racinggirl_bonus.webm':'';
+  const bonusSceneSrc=state.stage===1?'assets/bonus/stage1_maid_bonus.webm':state.stage===2?'assets/bonus/stage2_racinggirl_bonus.webm':state.stage===3?'assets/bonus/stage3_officelady_bonus.webm':'';
   const hasBonusScene=Boolean(bonusSceneSrc)&&level>=90;
   const mediaHtml=hasBonusScene
     ? `<video id="clearBonusVideo" class="clear-photo clear-bonus-video" src="${bonusSceneSrc}" autoplay muted loop playsinline preload="auto" poster="${artSrc}"></video>
@@ -86,7 +86,7 @@ css=root/'styles.css'
 with css.open('a',encoding='utf-8') as f:
     f.write(r"""
 
-/* Stage 1-2 90%+ WebM bonus scenes */
+/* Stage 1-3 90%+ WebM bonus scenes */
 .clear-bonus-video{background:#07050a;object-fit:cover}
 .bonus-still-image{object-fit:cover;cursor:zoom-in}
 .bonus-scene-unlocked{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);z-index:4;padding:7px 13px;border:1px solid rgba(255,122,188,.48);border-radius:999px;background:rgba(16,7,18,.78);backdrop-filter:blur(8px);color:#ffd1e8;font-size:.67rem;font-weight:950;letter-spacing:.08em;white-space:nowrap;box-shadow:0 0 22px rgba(255,64,157,.24)}
@@ -96,4 +96,4 @@ with css.open('a',encoding='utf-8') as f:
 @media(max-width:600px){.bonus-scene-unlocked{bottom:10px;font-size:.56rem;padding:6px 9px}.bonus-media-actions{top:8px;right:8px;gap:5px}.bonus-media-btn{font-size:.58rem;padding:6px 8px}}
 """)
 
-print('stage1-2 bonus scene patch applied')
+print('stage1-3 bonus scene patch applied')

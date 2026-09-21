@@ -5,12 +5,12 @@ root = Path(sys.argv[1] if len(sys.argv) > 1 else "_site")
 css_path = root / "styles.css"
 index_path = root / "index.html"
 
-marker = "/* v0.5.9 mobile-viewport hotfix */"
+marker = "/* v0.6.0 mobile-landscape hotfix */"
 css = css_path.read_text(encoding="utf-8")
 
 block = r'''
 
-/* v0.5.9 mobile-viewport hotfix */
+/* v0.6.0 mobile-landscape hotfix */
 @media (pointer:coarse), (max-width:800px){
   html,body{
     width:100%;
@@ -101,88 +101,125 @@ block = r'''
     min-height:0!important;
     padding:0 max(4px,env(safe-area-inset-right)) 0 max(4px,env(safe-area-inset-left));
   }
-  .game-topbar{
+
+  /* Board uses almost the entire usable browser height. */
+  .game-frame{
     position:absolute;
-    z-index:20;
-    top:max(2px,env(safe-area-inset-top));
+    z-index:10;
+    top:6px;
     left:50%;
     transform:translateX(-50%);
-    width:min(calc(100vw - 300px),840px)!important;
-    height:40px;
+    width:min(calc((100dvh - 12px)*4/3),calc(100vw - 220px),1120px)!important;
+    max-height:calc(100dvh - 12px)!important;
+    margin:0;
+  }
+
+  /* HUD overlays the top of the board instead of stealing vertical space. */
+  .game-topbar{
+    position:absolute;
+    z-index:30;
+    top:max(8px,env(safe-area-inset-top));
+    left:50%;
+    transform:translateX(-50%);
+    width:min(calc((100dvh - 26px)*4/3),calc(100vw - 238px),1096px)!important;
+    height:36px;
     gap:3px;
+    padding:2px;
+    border-radius:12px;
+    background:rgba(13,5,22,.52);
+    backdrop-filter:blur(5px);
+    -webkit-backdrop-filter:blur(5px);
   }
   .stat{
     min-width:0;
-    padding:2px 7px;
-    border-radius:10px;
+    padding:1px 6px;
+    border-radius:9px;
+    background:rgba(20,8,30,.46);
   }
-  .stat small{font-size:.42rem}
-  .stat strong{font-size:.78rem}
+  .stat small{font-size:.38rem;line-height:1}
+  .stat strong{font-size:.72rem;line-height:1.05}
   .icon-btn{
-    width:36px;
-    height:36px;
-    flex:0 0 36px;
+    width:32px;
+    height:32px;
+    flex:0 0 32px;
   }
-  .game-frame{
-    position:absolute;
-    top:44px;
-    left:50%;
-    transform:translateX(-50%);
-    width:min(calc((100dvh - 76px)*4/3),calc(100vw - 300px),1120px)!important;
-    margin:0;
-  }
+
+  /* Progress/DASH bar overlays the lower edge of the board. */
   .game-bottombar{
     position:absolute;
-    z-index:20;
+    z-index:30;
     left:50%;
-    bottom:2px;
+    bottom:8px;
     transform:translateX(-50%);
-    width:min(calc((100dvh - 76px)*4/3),calc(100vw - 300px),1120px)!important;
-    height:26px;
+    width:min(calc((100dvh - 26px)*4/3),calc(100vw - 238px),1096px)!important;
+    height:24px;
+    padding:2px 8px;
+    border-radius:10px;
+    background:rgba(13,5,22,.52);
+    backdrop-filter:blur(5px);
+    -webkit-backdrop-filter:blur(5px);
   }
   .music-label{display:none!important}
+  .stamina-box{min-width:100px!important}
+  .stamina-track{width:64px!important}
+
+  /* Controls live in side gutters and no longer reduce board height. */
   .mobile-controls{
     position:absolute;
-    z-index:21;
-    inset:44px 8px 28px;
+    z-index:40;
+    inset:0;
     width:auto!important;
     min-height:0!important;
-    padding:0 4px max(4px,env(safe-area-inset-bottom))!important;
+    padding:0!important;
     margin:0!important;
-    align-items:flex-end;
     pointer-events:none;
   }
   .mobile-controls .move-joystick,
   .mobile-controls .mobile-actions{pointer-events:auto}
+
   .move-joystick{
-    width:104px!important;
-    height:104px!important;
-    flex-basis:104px!important;
+    position:absolute!important;
+    left:max(10px,env(safe-area-inset-left));
+    top:50%;
+    transform:translateY(-50%);
+    width:100px!important;
+    height:100px!important;
+    flex-basis:100px!important;
   }
   .joystick-knob{
-    width:48px!important;
-    height:48px!important;
+    width:46px!important;
+    height:46px!important;
   }
+
   .mobile-actions{
-    min-width:154px!important;
-    gap:6px!important;
+    position:absolute!important;
+    right:max(10px,env(safe-area-inset-right));
+    top:50%;
+    transform:translateY(-50%);
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    min-width:0!important;
+    gap:8px!important;
   }
   .capture-btn{
-    width:84px!important;
-    height:84px!important;
-    flex-basis:84px!important;
-    font-size:.76rem!important;
+    width:88px!important;
+    height:88px!important;
+    flex-basis:88px!important;
+    font-size:.75rem!important;
   }
   .dash-btn{
-    width:64px!important;
-    height:54px!important;
-    flex-basis:64px!important;
+    width:68px!important;
+    height:50px!important;
+    flex-basis:50px!important;
+    font-size:.68rem!important;
   }
+
   .mini-map{
-    width:min(20%,118px)!important;
-    min-width:70px!important;
+    width:min(18%,110px)!important;
+    min-width:68px!important;
     right:6px!important;
-    bottom:6px!important;
+    bottom:34px!important;
   }
   .mini-map.avoid-left{
     left:6px!important;
@@ -197,8 +234,8 @@ if marker not in css:
 index = index_path.read_text(encoding="utf-8")
 for old in ("v0.5.4 analytics beta", "v0.5.3 playfeel beta", "v0.5 feedback beta"):
     if old in index:
-        index = index.replace(old, "v0.5.9 mobile beta", 1)
+        index = index.replace(old, "v0.6.0 mobile beta", 1)
         break
 index_path.write_text(index, encoding="utf-8")
 
-print("v0.5.9 mobile viewport patch applied")
+print("v0.6.0 mobile landscape patch applied")

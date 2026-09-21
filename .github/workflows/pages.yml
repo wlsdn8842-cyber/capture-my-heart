@@ -69,8 +69,8 @@ jobs:
           # Apply gameplay and analytics patches to the stable beta bundle.
           python overrides/playfeel_patch.py _site
           python overrides/mobile_controls_patch.py _site
-          python overrides/mobile_layout_patch.py _site
           python overrides/analytics_patch.py _site
+          python overrides/mobile_layout_patch.py _site
           if [ "$BONUS_SCENE_READY" = "1" ]; then
             python overrides/bonus_scene_patch.py _site
             # Force existing clients onto the current bonus-scene build.

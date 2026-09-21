@@ -110,7 +110,9 @@ jobs:
           grep -q "setPointerCapture" _site/game.js
           grep -q "avoid-left" _site/styles.css
           grep -q "v0.6.0 mobile-landscape hotfix" _site/styles.css
-          grep -q "v0.6.0 mobile beta" _site/index.html
+          grep -q "v0.6.1 adsense verify" _site/index.html
+          grep -q "ca-pub-6414931308880829" _site/index.html
+          grep -q "ca-pub-6414931308880829" _site/config.js
           node --check _site/game.js
           node --check _site/analytics.js
           node --check _site/feedback.js

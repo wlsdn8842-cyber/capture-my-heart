@@ -195,7 +195,7 @@ if marker not in css:
     css_path.write_text(css + block, encoding="utf-8")
 
 index = index_path.read_text(encoding="utf-8")
-for old in ("v0.5.3 playfeel beta", "v0.5 feedback beta"):
+for old in ("v0.5.4 analytics beta", "v0.5.3 playfeel beta", "v0.5 feedback beta"):
     if old in index:
         index = index.replace(old, "v0.5.9 mobile beta", 1)
         break

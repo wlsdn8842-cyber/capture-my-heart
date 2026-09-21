@@ -87,8 +87,8 @@ with css.open('a',encoding='utf-8') as f:
     f.write(r"""
 
 /* Stage 1-3 90%+ WebM bonus scenes */
-.clear-bonus-video{background:#07050a;object-fit:cover}
-.bonus-still-image{object-fit:cover;cursor:zoom-in}
+.clear-bonus-video{background:#07050a;object-fit:contain!important;object-position:center center!important}
+.bonus-still-image{object-fit:contain!important;object-position:center center!important;background:#07050a;cursor:zoom-in}
 .bonus-scene-unlocked{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);z-index:4;padding:7px 13px;border:1px solid rgba(255,122,188,.48);border-radius:999px;background:rgba(16,7,18,.78);backdrop-filter:blur(8px);color:#ffd1e8;font-size:.67rem;font-weight:950;letter-spacing:.08em;white-space:nowrap;box-shadow:0 0 22px rgba(255,64,157,.24)}
 .bonus-media-actions{position:absolute;right:12px;top:12px;z-index:6;display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
 .bonus-media-btn{border:1px solid rgba(255,255,255,.24);border-radius:999px;padding:7px 11px;background:rgba(12,7,18,.78);backdrop-filter:blur(8px);color:#fff;font-size:.68rem;font-weight:900;cursor:pointer;box-shadow:0 0 18px rgba(255,64,157,.18)}

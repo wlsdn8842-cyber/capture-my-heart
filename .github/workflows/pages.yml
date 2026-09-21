@@ -128,7 +128,10 @@ jobs:
           grep -q "drawPlayerVisual" _site/game.js
           grep -q "drawEnemyVisual" _site/game.js
           grep -q "v0.6.5 focus pause hotfix" _site/game.js
-          grep -q "cmh-core-v0.6.5" _site/sw.js
+          grep -q "cmh-core-v0.6.6" _site/sw.js
+          grep -q "function platform()" _site/analytics.js
+          grep -q "referrer_host:platform()" _site/analytics.js
+          grep -q "플랫폼 유입" _site/admin/index.html
           grep -q "v0.6.4 visual refresh" _site/index.html
           node --check _site/game.js
           node --check _site/analytics.js

@@ -52,6 +52,20 @@
   function referrerHost(){
     try{return document.referrer?new URL(document.referrer).hostname.slice(0,120):''}catch(_){return ''}
   }
+  function platform(){
+    const hosts=[];
+    const pushHost=(h)=>{h=String(h||'').toLowerCase();if(h)hosts.push(h)};
+    pushHost(location.hostname);
+    pushHost(referrerHost());
+    try{
+      for(const origin of Array.from(location.ancestorOrigins||[])){
+        try{pushHost(new URL(origin).hostname)}catch(_){}
+      }
+    }catch(_){}
+    if(hosts.some(h=>h==='itch.io'||h.endsWith('.itch.io')||h==='itch.zone'||h.endsWith('.itch.zone')))return 'itch.io';
+    if(hosts.some(h=>h==='github.io'||h.endsWith('.github.io')))return 'GitHub Pages';
+    return 'Other / Direct';
+  }
   function readQueue(){ try{return JSON.parse(safeLocalGet(QUEUE_KEY)||'[]')}catch(_){return []} }
   function writeQueue(items){ safeLocalSet(QUEUE_KEY,JSON.stringify(items.slice(-(cfg.MAX_LOCAL_QUEUE||200)))) }
   function enqueue(x){const q=readQueue();q.push(x);writeQueue(q)}
@@ -84,7 +98,7 @@
       device:device(),
       viewport:`${window.innerWidth}x${window.innerHeight}`,
       language:(navigator.language||'').slice(0,16),
-      referrer_host:referrerHost(),
+      referrer_host:platform(),
       path:(location.pathname||'/').slice(0,160),
       params:cleanParams(params)
     };
@@ -154,6 +168,6 @@
     window.addEventListener('online',flush);
   }
 
-  window.CMH_ANALYTICS={track,flush,sessionId,visitorId,visitNo,sessionSeconds,enabled,isExcluded};
+  window.CMH_ANALYTICS={track,flush,sessionId,visitorId,visitNo,sessionSeconds,enabled,isExcluded,platform};
   init();
 })();

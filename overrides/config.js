@@ -1,6 +1,6 @@
 window.CMH_CONFIG = {
   GAME_TITLE: 'Capture My Heart! Territory Panic',
-  VERSION: '0.5.4',
+  VERSION: '0.6.1',
   GAMEPLAY: {
     DANGER_BGM_ENABLED: false,
     DANGER_VISUAL_ENABLED: true,
@@ -9,7 +9,7 @@ window.CMH_CONFIG = {
   },
   ADS: {
     ENABLED: false,
-    PUBLISHER_ID: '',
+    PUBLISHER_ID: 'ca-pub-6414931308880829',
     TEST_MODE: false,
     FREQUENCY_HINT: '120s',
     INTERSTITIAL_AFTER_STAGES: [2, 4, 6, 8],

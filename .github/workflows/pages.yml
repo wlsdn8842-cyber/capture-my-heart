@@ -109,8 +109,8 @@ jobs:
           grep -q "bindHoldButton" _site/game.js
           grep -q "setPointerCapture" _site/game.js
           grep -q "avoid-left" _site/styles.css
-          grep -q "v0.5.9 mobile-viewport hotfix" _site/styles.css
-          grep -q "v0.5.9 mobile beta" _site/index.html
+          grep -q "v0.6.0 mobile-landscape hotfix" _site/styles.css
+          grep -q "v0.6.0 mobile beta" _site/index.html
           node --check _site/game.js
           node --check _site/analytics.js
           node --check _site/feedback.js

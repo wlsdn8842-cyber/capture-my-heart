@@ -84,6 +84,7 @@ jobs:
             sed -i 's/cmh-core-v0.5.4.2/cmh-core-v0.5.8/' _site/sw.js
           fi
           python overrides/visual_refresh_patch.py _site
+          python overrides/age_gate_patch.py _site
 
           # Cloudflare-only files are not part of the static GitHub Pages build.
           rm -rf _site/functions
@@ -122,17 +123,21 @@ jobs:
           grep -q "setPointerCapture" _site/game.js
           grep -q "avoid-left" _site/styles.css
           grep -q "v0.6.0 mobile-landscape hotfix" _site/styles.css
-          grep -q "v0.6.4 visual refresh" _site/index.html
+          grep -q "v0.6.8 19+ age gate" _site/index.html
           grep -q "ca-pub-6414931308880829" _site/index.html
           grep -q "ca-pub-6414931308880829" _site/config.js
           grep -q "drawPlayerVisual" _site/game.js
           grep -q "drawEnemyVisual" _site/game.js
           grep -q "v0.6.5 focus pause hotfix" _site/game.js
-          grep -q "cmh-core-v0.6.7" _site/sw.js
+          grep -q "cmh-core-v0.6.8" _site/sw.js
           grep -q "function platform()" _site/analytics.js
           grep -q "referrer_host:platform()" _site/analytics.js
           grep -q "플랫폼 유입" _site/admin/index.html
-          grep -q "v0.6.4 visual refresh" _site/index.html
+          grep -q "AGE_PERSIST_KEY" _site/game.js
+          grep -q "ageExitBtn" _site/index.html
+          grep -q "19세 이상입니다" _site/index.html
+          grep -q "VERSION: '0.6.8'" _site/config.js
+          grep -q "v0.6.8 19+ age gate" _site/index.html
           node --check _site/game.js
           node --check _site/analytics.js
           node --check _site/feedback.js

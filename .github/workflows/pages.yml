@@ -92,6 +92,7 @@ jobs:
           python overrides/visual_refresh_patch.py _site
           python overrides/age_gate_patch.py _site
           python overrides/interactive_tutorial_patch.py _site
+          python overrides/mobile_ux_v2_patch.py _site
 
           # Cloudflare-only files are not part of the static GitHub Pages build.
           rm -rf _site/functions
@@ -140,7 +141,7 @@ jobs:
           grep -q "drawPlayerVisual" _site/game.js
           grep -q "drawEnemyVisual" _site/game.js
           grep -q "v0.6.5 focus pause hotfix" _site/game.js
-          grep -q "cmh-core-v0.7.2" _site/sw.js
+          grep -q "cmh-core-v0.8.0" _site/sw.js
           grep -q "function platform()" _site/analytics.js
           grep -q "referrer_host:platform()" _site/analytics.js
           grep -q "플랫폼 유입" _site/admin/index.html
@@ -157,7 +158,12 @@ jobs:
           grep -q "tutorial_replay" _site/game.js
           grep -q "PLAY TUTORIAL AGAIN" _site/game.js
           grep -q "interactive-v2" _site/styles.css
-          grep -q "VERSION: '0.7.2'" _site/config.js
+          grep -q "mobileCaptureLocked" _site/game.js
+          grep -q "mobile_capture_lock_on" _site/game.js
+          grep -q "CAPTURE ON" _site/game.js
+          grep -q "TAP CAPTURE" _site/game.js
+          grep -q "MOBILE ONLY UX v2" _site/styles.css
+          grep -q "VERSION: '0.8.0'" _site/config.js
           grep -q "v0.7.2 interactive tutorial" _site/index.html
           node --check _site/game.js
           node --check _site/analytics.js

@@ -12,7 +12,11 @@ m="const SETTINGS_KEY = 'cmh.settings';\n"
 block="""const TUTORIAL_V2_KEY='cmh.tutorial.v2.status';
 const tutorial={active:false,replay:false,step:'move',startedAt:0,moveCells:0,lastX:null,lastY:null,lastArea:0,prevAuto:false,retractArmed:false,retractStarted:false,done:new Set()};
 function tutorialStatus(){try{return localStorage.getItem(TUTORIAL_V2_KEY)||''}catch(_){return ''}}
-function tutorialRequired(){const s=tutorialStatus();return s!=='complete'&&s!=='skipped'}
+function tutorialRequired(){
+  const s=tutorialStatus();if(s==='complete'||s==='skipped')return false;
+  try{if(localStorage.getItem('cmh.tutorial')==='1'){tutorialPersist('complete');return false}}catch(_){}
+  return true
+}
 function tutorialPersist(v){try{localStorage.setItem(TUTORIAL_V2_KEY,v)}catch(_){}}
 function tutorialCoarse(){return !!window.matchMedia?.('(pointer: coarse)')?.matches}
 """
@@ -39,11 +43,12 @@ rep(Path('game.js'),"function showPause(){\n  if(state.mode!=='playing')return;s
 
 # tutorial tick after regular movement; no enemies/projectiles exist and time is held at 999.
 needle="    if(!state.paused){updateEnemies(dt);updateProjectiles(dt);state.timerAcc+=dt;if(state.timerAcc>=.1){state.timeLeft-=state.timerAcc;state.timerAcc=0;if(state.timeLeft<=0){state.timeLeft=STAGES[state.stage].timer;failLife('TIME UP')}}const danger=dangerCheck();if(window.CMH_CONFIG?.GAMEPLAY?.DANGER_BGM_ENABLED!==false)audio.setDanger(danger)}\n"
-rep(Path('game.js'),needle,needle+"    if(tutorial.active&&!state.paused)tutorialTick();\n",'loop hook')
+guarded="    if(!state.paused&&!tutorial.active){updateEnemies(dt);updateProjectiles(dt);state.timerAcc+=dt;if(state.timerAcc>=.1){state.timeLeft-=state.timerAcc;state.timerAcc=0;if(state.timeLeft<=0){state.timeLeft=STAGES[state.stage].timer;failLife('TIME UP')}}const danger=dangerCheck();if(window.CMH_CONFIG?.GAMEPLAY?.DANGER_BGM_ENABLED!==false)audio.setDanger(danger)}\n    if(tutorial.active&&!state.paused)tutorialTick();\n"
+rep(Path('game.js'),needle,guarded,'loop hook')
 
-# Capture score is neutralized immediately in tutorial.
-needle="  collectCapturedItems();maybeSpawnItem();updateHUD();checkMilestone();\n}"
-rep(Path('game.js'),needle,"  collectCapturedItems();maybeSpawnItem();if(tutorial.active){state.score=0;state.items=[]}updateHUD();checkMilestone();\n}",'capture neutralize')
+# Tutorial keeps real flood-fill/reveal, but exits before score/items/milestones.
+needle="  const delta=Math.max(0,state.area-before), points=Math.round(gained*(10+state.stage*2)*(1+Math.min(.8,delta/35)));\n"
+rep(Path('game.js'),needle,"  if(tutorial.active){audio.beep(740,.09,'triangle',.04);updateHUD();return}\n"+needle,'capture no score')
 
 # controller inserted before preloadNext
 controller=r'''function tutorialRender(){
@@ -60,7 +65,7 @@ controller=r'''function tutorialRender(){
 }
 function tutorialStepDone(step){if(tutorial.done.has(step))return;tutorial.done.add(step);track('tutorial_step_complete',{step});audio.beep(880,.08,'triangle',.035);toast('GOOD! ♥',false,650)}
 function tutorialSet(step,delay=0){const f=()=>{if(!tutorial.active)return;tutorial.step=step;if(step==='retract'){tutorial.retractArmed=false;tutorial.retractStarted=false}tutorialRender()};delay?setTimeout(f,delay):f()}
-function tutorialReset(){const step=tutorial.step;initGrid();state.enemies=[];state.projectiles=[];state.items=[];state.score=0;state.lives=3;state.timeLeft=999;state.clearMilestone=0;state.area=0;state.lastArea=0;tutorial.lastX=state.player.x;tutorial.lastY=state.player.y;tutorial.lastArea=0;tutorial.prevAuto=false;tutorial.step=step;updateHUD();tutorialRender()}
+function tutorialReset(){const step=tutorial.step;initTutorialGrid();state.enemies=[];state.projectiles=[];state.items=[];state.score=0;state.lives=3;state.timeLeft=999;state.clearMilestone=0;tutorial.lastX=state.player.x;tutorial.lastY=state.player.y;tutorial.lastArea=state.area;tutorial.prevAuto=false;tutorial.step=step;updateHUD();tutorialRender()}
 function tutorialTryAgain(reason){if(!tutorial.active)return;if(tutorial.step==='capture')tutorial.step='draw';toast('TRY AGAIN · '+reason,true,950);setTimeout(()=>{if(tutorial.active)tutorialReset()},220)}
 function tutorialTick(){
   if(!tutorial.active)return;state.timeLeft=999;state.score=0;state.items=[];const p=state.player;
@@ -84,9 +89,17 @@ function tutorialFinish(){tutorial.step='ready';state.paused=true;if(!tutorial.r
 function tutorialPrimary(){if(!tutorial.active||tutorial.step!=='ready')return;const replay=tutorial.replay;tutorial.active=false;state.paused=false;$('#tutorialOverlay').classList.add('hidden');input.dirs.clear();input.capture=false;input.dash=false;if(replay)showTitle();else startStage(1,false)}
 function showTutorialSkipConfirm(){if(!tutorial.active||tutorial.step==='ready')return;state.paused=true;openModal('<h2>Skip tutorial?</h2><p>You can replay it later from HOW TO PLAY.</p><div class="slot-grid"><button id="tutorialContinueV2" class="btn secondary">CONTINUE TUTORIAL</button><button id="tutorialSkipConfirmV2" class="btn tertiary">SKIP</button></div>');$('#tutorialContinueV2').onclick=()=>{closeModal();state.paused=false;state.lastTs=performance.now()};$('#tutorialSkipConfirmV2').onclick=()=>{closeModal();tutorialSkip()}}
 function tutorialSkip(){const replay=tutorial.replay,d=Math.max(0,Math.round((performance.now()-tutorial.startedAt)/1000));track('tutorial_skip',{step:tutorial.step,duration_seconds:d,replay:!!replay});if(!replay)tutorialPersist('skipped');tutorial.active=false;state.paused=false;$('#tutorialOverlay').classList.add('hidden');input.dirs.clear();input.capture=false;input.dash=false;if(replay)showTitle();else startStage(1,false)}
+function initTutorialGrid(){
+  grid.fill(CLAIMED);
+  const x0=Math.floor(GW*.22),x1=Math.ceil(GW*.78),y0=Math.floor(GH*.22),y1=Math.ceil(GH*.78);
+  for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++)setCell(x,y,UNCLAIMED);
+  const px=Math.floor((x0+x1)/2),py=y0-1;
+  state.player={x:px,y:py,drawing:false,autoRetract:false,trailStart:{x:px,y:py},trailPath:[]};
+  state.area=calcArea();state.lastArea=state.area;rebuildVisualLayers();
+}
 async function startInteractiveTutorial(replay=false){
   tutorial.active=true;tutorial.replay=!!replay;tutorial.step='move';tutorial.startedAt=performance.now();tutorial.moveCells=0;tutorial.lastX=null;tutorial.lastY=null;tutorial.lastArea=0;tutorial.retractArmed=false;tutorial.retractStarted=false;tutorial.done=new Set();if(replay)track('tutorial_replay',{});track('tutorial_start',{replay:!!replay});
-  state.stage=1;state.mode='loading';showGame();closeModal();state.paused=true;try{state.currentImage=await loadImage(stageSrc(1))}catch(e){tutorial.active=false;return showTitle()}initGrid();state.enemies=[];state.projectiles=[];state.items=[];state.score=0;state.lives=3;state.timeLeft=999;state.clearMilestone=0;state.shield=0;state.dashStamina=100;state.dashExhausted=false;state.mode='playing';state.paused=false;state.lastTs=performance.now();state.moveAcc=0;state.timerAcc=0;audio.playBase(STAGES[1].music,true);audio.setDanger(false);tutorial.lastX=state.player.x;tutorial.lastY=state.player.y;tutorialRender();updateHUD();cancelAnimationFrame(state.frameId);state.frameId=requestAnimationFrame(loop)
+  state.stage=1;state.mode='loading';showGame();closeModal();state.paused=true;try{state.currentImage=await loadImage(stageSrc(1))}catch(e){tutorial.active=false;return showTitle()}initTutorialGrid();state.enemies=[];state.projectiles=[];state.items=[];state.score=0;state.lives=3;state.timeLeft=999;state.clearMilestone=0;state.shield=0;state.dashStamina=100;state.dashExhausted=false;state.mode='playing';state.paused=false;state.lastTs=performance.now();state.moveAcc=0;state.timerAcc=0;audio.playBase(STAGES[1].music,true);audio.setDanger(false);tutorial.lastX=state.player.x;tutorial.lastY=state.player.y;tutorialRender();updateHUD();cancelAnimationFrame(state.frameId);state.frameId=requestAnimationFrame(loop)
 }
 '''
 marker="function preloadNext(){if(state.stage<10)loadImage(stageSrc(state.stage+1)).catch(()=>{});}\n"
@@ -94,9 +107,9 @@ rep(Path('game.js'),marker,controller+'\n'+marker,'controller')
 
 # CSS appended; overlay remains transparent enough to see and interact with board.
 css=root/'styles.css';s=css.read_text(encoding='utf-8')
-if '/* v0.7.0 tutorial v2 */' not in s:
+if '/* v0.7.1 tutorial v2 */' not in s:
  s += r'''
-/* v0.7.0 tutorial v2 */
+/* v0.7.1 tutorial v2 */
 .tutorial-overlay.interactive-v2{background:linear-gradient(180deg,rgba(3,1,8,.16),rgba(3,1,8,.02) 62%,rgba(3,1,8,.2));backdrop-filter:none;pointer-events:none;align-items:flex-start;padding:12px}.tutorial-live-v2{width:min(470px,72%);padding:12px 16px;border-radius:16px;background:rgba(25,8,37,.9);border:1px solid rgba(255,110,185,.42);box-shadow:0 12px 36px rgba(0,0,0,.48),0 0 24px rgba(255,60,155,.14);text-align:center}.tutorial-live-v2 small{color:#ff9dcc;font-weight:900;letter-spacing:.14em}.tutorial-live-v2 h2{margin:2px 0 4px;font-size:1.15rem}.tutorial-live-v2 p{margin:0;color:#f3e9f4}.tutorial-live-v2 em{display:block;margin-top:5px;color:#cab8cd;font-size:.72rem;font-style:normal}.tutorial-live-v2 .btn{margin-top:9px;pointer-events:auto}.tutorial-skip-v2{position:absolute;right:10px;top:10px;z-index:3;border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:6px 9px;background:rgba(7,4,14,.78);color:#eee;font-size:.6rem;font-weight:850;cursor:pointer;pointer-events:auto}@media(max-width:800px),(pointer:coarse){.tutorial-overlay.interactive-v2{padding:5px}.tutorial-live-v2{width:min(64%,430px);padding:7px 10px}.tutorial-live-v2 h2{font-size:.82rem}.tutorial-live-v2 p{font-size:.65rem}.tutorial-live-v2 em{font-size:.52rem}.tutorial-live-v2 small{font-size:.46rem}.tutorial-skip-v2{right:5px;top:5px;font-size:.48rem;padding:4px 6px}}
 '''
  css.write_text(s,encoding='utf-8')
@@ -104,7 +117,7 @@ if '/* v0.7.0 tutorial v2 */' not in s:
 # Visible build label after visual/age patches.
 index=root/'index.html';s=index.read_text(encoding='utf-8')
 for old in ('v0.6.8 19+ age gate','v0.6.4 visual refresh'):
- if old in s: s=s.replace(old,'v0.7.0 interactive tutorial',1);break
+ if old in s: s=s.replace(old,'v0.7.1 interactive tutorial',1);break
 index.write_text(s,encoding='utf-8')
 
-print('v0.7.0 interactive tutorial v2 applied')
+print('v0.7.1 interactive tutorial v2 applied')

@@ -9,13 +9,12 @@ def rep(path,old,new,label):
 
 # state + persistence
 m="const SETTINGS_KEY = 'cmh.settings';\n"
-block="""const TUTORIAL_V2_KEY='cmh.tutorial.v2.status';
+block="""const TUTORIAL_V2_KEY='cmh.tutorial.interactive.v1.status';
 const tutorial={active:false,replay:false,step:'move',startedAt:0,moveCells:0,lastX:null,lastY:null,lastArea:0,prevAuto:false,retractArmed:false,retractStarted:false,done:new Set()};
 function tutorialStatus(){try{return localStorage.getItem(TUTORIAL_V2_KEY)||''}catch(_){return ''}}
 function tutorialRequired(){
-  const s=tutorialStatus();if(s==='complete'||s==='skipped')return false;
-  try{if(localStorage.getItem('cmh.tutorial')==='1'){tutorialPersist('complete');return false}}catch(_){}
-  return true
+  const s=tutorialStatus();
+  return s!=='complete'&&s!=='skipped';
 }
 function tutorialPersist(v){try{localStorage.setItem(TUTORIAL_V2_KEY,v)}catch(_){}}
 function tutorialCoarse(){return !!window.matchMedia?.('(pointer: coarse)')?.matches}
@@ -107,9 +106,9 @@ rep(Path('game.js'),marker,controller+'\n'+marker,'controller')
 
 # CSS appended; overlay remains transparent enough to see and interact with board.
 css=root/'styles.css';s=css.read_text(encoding='utf-8')
-if '/* v0.7.1 tutorial v2 */' not in s:
+if '/* v0.7.2 tutorial v2 */' not in s:
  s += r'''
-/* v0.7.1 tutorial v2 */
+/* v0.7.2 tutorial v2 */
 .tutorial-overlay.interactive-v2{background:linear-gradient(180deg,rgba(3,1,8,.16),rgba(3,1,8,.02) 62%,rgba(3,1,8,.2));backdrop-filter:none;pointer-events:none;align-items:flex-start;padding:12px}.tutorial-live-v2{width:min(470px,72%);padding:12px 16px;border-radius:16px;background:rgba(25,8,37,.9);border:1px solid rgba(255,110,185,.42);box-shadow:0 12px 36px rgba(0,0,0,.48),0 0 24px rgba(255,60,155,.14);text-align:center}.tutorial-live-v2 small{color:#ff9dcc;font-weight:900;letter-spacing:.14em}.tutorial-live-v2 h2{margin:2px 0 4px;font-size:1.15rem}.tutorial-live-v2 p{margin:0;color:#f3e9f4}.tutorial-live-v2 em{display:block;margin-top:5px;color:#cab8cd;font-size:.72rem;font-style:normal}.tutorial-live-v2 .btn{margin-top:9px;pointer-events:auto}.tutorial-skip-v2{position:absolute;right:10px;top:10px;z-index:3;border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:6px 9px;background:rgba(7,4,14,.78);color:#eee;font-size:.6rem;font-weight:850;cursor:pointer;pointer-events:auto}@media(max-width:800px),(pointer:coarse){.tutorial-overlay.interactive-v2{padding:5px}.tutorial-live-v2{width:min(64%,430px);padding:7px 10px}.tutorial-live-v2 h2{font-size:.82rem}.tutorial-live-v2 p{font-size:.65rem}.tutorial-live-v2 em{font-size:.52rem}.tutorial-live-v2 small{font-size:.46rem}.tutorial-skip-v2{right:5px;top:5px;font-size:.48rem;padding:4px 6px}}
 '''
  css.write_text(s,encoding='utf-8')
@@ -117,7 +116,7 @@ if '/* v0.7.1 tutorial v2 */' not in s:
 # Visible build label after visual/age patches.
 index=root/'index.html';s=index.read_text(encoding='utf-8')
 for old in ('v0.6.8 19+ age gate','v0.6.4 visual refresh'):
- if old in s: s=s.replace(old,'v0.7.1 interactive tutorial',1);break
+ if old in s: s=s.replace(old,'v0.7.2 interactive tutorial',1);break
 index.write_text(s,encoding='utf-8')
 
-print('v0.7.1 interactive tutorial v2 applied')
+print('v0.7.2 interactive tutorial v2 applied')

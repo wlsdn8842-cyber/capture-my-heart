@@ -64,7 +64,9 @@ function tutorialReset(){const step=tutorial.step;initGrid();state.enemies=[];st
 function tutorialTryAgain(reason){if(!tutorial.active)return;if(tutorial.step==='capture')tutorial.step='draw';toast('TRY AGAIN · '+reason,true,950);setTimeout(()=>{if(tutorial.active)tutorialReset()},220)}
 function tutorialTick(){
   if(!tutorial.active)return;state.timeLeft=999;state.score=0;state.items=[];const p=state.player;
-  const moved=tutorial.lastX===null?0:Math.abs(p.x-tutorial.lastX)+Math.abs(p.y-tutorial.lastY);if(moved){tutorial.moveCells+=moved;tutorial.lastX=p.x;tutorial.lastY=p.y}
+  const moved=tutorial.lastX===null?0:Math.abs(p.x-tutorial.lastX)+Math.abs(p.y-tutorial.lastY);
+  if(tutorial.step==='move'&&p.drawing){clearTrail();toast('먼저 이동부터 해볼게요',false,650);tutorial.lastX=state.player.x;tutorial.lastY=state.player.y}
+  else if(moved){tutorial.moveCells+=moved;tutorial.lastX=p.x;tutorial.lastY=p.y}
   if(tutorial.step==='move'&&tutorial.moveCells>=3){tutorialStepDone('move');tutorialSet('draw',450)}
   else if(tutorial.step==='draw'&&p.drawing&&(p.trailPath?.length||0)>=2){tutorialStepDone('draw');tutorial.lastArea=state.area;tutorialSet('capture',300)}
   else if(tutorial.step==='capture'){

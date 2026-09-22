@@ -1,4 +1,4 @@
-const CACHE='cmh-core-v0.6.7';
+const CACHE='cmh-core-v0.6.8';
 const CORE=['./','index.html','styles.css','config.js','ads.js','analytics.js','feedback.js','game.js','manifest.webmanifest','privacy.html','assets/images/title.webp','assets/audio/main.mp3'];
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));

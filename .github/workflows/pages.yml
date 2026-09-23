@@ -20,6 +20,8 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+    env:
+      BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
 
     steps:
       - name: Checkout
@@ -185,3 +187,48 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+
+      - name: Prepare itch.io HTML5 build
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf _itch
+          mkdir -p _itch
+          cp _site/index.html _site/styles.css _site/config.js _site/ads.js _site/analytics.js _site/feedback.js _site/game.js _site/manifest.webmanifest _site/privacy.html _site/sw.js _itch/
+          cp -a _site/assets _itch/assets
+          test -f _itch/index.html
+          test -f _itch/game.js
+          test -f _itch/assets/bonus/stage04_miko_bonus.webm
+          if [ -d _itch/admin ]; then
+            echo "admin directory must not be included in itch build" >&2
+            exit 1
+          fi
+          echo "Prepared itch.io HTML5 build: $(find _itch -type f | wc -l) files"
+
+      - name: Install itch.io butler
+        if: ${{ env.BUTLER_API_KEY != '' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL https://broth.itch.zone/butler/linux-amd64/LATEST/archive/default -o /tmp/butler.zip
+          rm -rf /tmp/butler
+          mkdir -p /tmp/butler
+          unzip -q /tmp/butler.zip -d /tmp/butler
+          chmod +x /tmp/butler/butler
+          /tmp/butler/butler version
+
+      - name: Push HTML5 build to itch.io
+        if: ${{ env.BUTLER_API_KEY != '' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="$(sed -n "s/.*VERSION: '\([^']*\)'.*/\1/p" _site/config.js | head -n1)"
+          test -n "$VERSION"
+          /tmp/butler/butler push _itch wlsdn8842-cyber/capture-my-heart:html5 --userversion "$VERSION" --if-changed
+
+      - name: itch.io auto-deploy not enabled yet
+        if: ${{ env.BUTLER_API_KEY == '' }}
+        shell: bash
+        run: |
+          echo "::notice::GitHub Pages deployed successfully. itch.io upload was skipped because repository secret BUTLER_API_KEY is not configured yet."

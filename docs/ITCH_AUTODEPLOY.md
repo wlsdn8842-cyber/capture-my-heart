@@ -51,3 +51,6 @@ The private `admin/` dashboard is intentionally excluded from itch.io.
 ## Versioning
 
 The workflow reads `CMH_CONFIG.VERSION` and passes it to Butler with `--userversion`.
+
+
+> Activation check: Butler auto-deploy enabled and trigger verified via GitHub Actions.

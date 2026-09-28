@@ -103,6 +103,7 @@ jobs:
           python overrides/juice_v1_patch.py _site
           python overrides/boss_breakout_patch.py _site
           python overrides/character_mask_shadow_patch.py _site
+          python overrides/character_mask_stage1_gate_patch.py _site
 
           # Cloudflare-only files are not part of the static GitHub Pages build.
           rm -rf _site/functions
@@ -145,13 +146,13 @@ jobs:
           grep -q "setPointerCapture" _site/game.js
           grep -q "avoid-left" _site/styles.css
           grep -q "v0.6.0 mobile-landscape hotfix" _site/styles.css
-          grep -q "v0.11.0 mask shadow" _site/index.html
+          grep -q "v0.11.1 stage1 char gate" _site/index.html
           grep -q "ca-pub-6414931308880829" _site/index.html
           grep -q "ca-pub-6414931308880829" _site/config.js
           grep -q "drawPlayerVisual" _site/game.js
           grep -q "drawEnemyVisual" _site/game.js
           grep -q "v0.6.5 focus pause hotfix" _site/game.js
-          grep -q "cmh-core-v0.11.0" _site/sw.js
+          grep -q "cmh-core-v0.11.1" _site/sw.js
           grep -q "function platform()" _site/analytics.js
           grep -q "function trafficSource()" _site/analytics.js
           grep -q "traffic_source:trafficSource()" _site/analytics.js
@@ -202,11 +203,14 @@ jobs:
           grep -q "CMH_CHARACTER_MASKS" _site/character_masks.js
           grep -q "Character Mask Shadow Mode" _site/game.js
           grep -q "character_mask_shadow" _site/game.js
+          grep -q "stageProgressMetric" _site/game.js
+          grep -q "perfectTarget" _site/game.js
+          grep -q "metric_value" _site/game.js
           test -f _site/admin/mask-editor.html
           grep -q "label:'STOP'" _site/game.js
           grep -q "label:'SLOW'" _site/game.js
-          grep -q "VERSION: '0.11.0'" _site/config.js
-          grep -q "v0.11.0 mask shadow" _site/index.html
+          grep -q "VERSION: '0.11.1'" _site/config.js
+          grep -q "v0.11.1 stage1 char gate" _site/index.html
           node --check _site/game.js
           node --check _site/analytics.js
           node --check _site/feedback.js

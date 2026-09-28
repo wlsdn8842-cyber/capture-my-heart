@@ -119,8 +119,8 @@ rep(Path('game.js'),
 "  }else if((b.kind==='teleport'||b.kind==='stage1_escape')&&target){",'emergency telegraph visual')
 
 rep(Path('game.js'),
-"  const label=b.kind==='laser'?'LASER':b.kind==='smash'?'BREAK':b.kind===='teleport'?'WARP':'ESCAPE';",
-"  const label=b.kind==='laser'?'LASER':b.kind==='smash'?'BREAK':b.kind===='teleport'?'WARP':b.kind==='stage1_escape'?'PANIC':'ESCAPE';",'emergency telegraph label')
+"  const label=b.kind==='laser'?'LASER':b.kind==='smash'?'BREAK':b.kind==='teleport'?'WARP':'ESCAPE';",
+"  const label=b.kind==='laser'?'LASER':b.kind==='smash'?'BREAK':b.kind==='teleport'?'WARP':b.kind==='stage1_escape'?'PANIC':'ESCAPE';",'emergency telegraph label')
 
 rep(Path('game.js'),
 "<small>${state.stage===1?'판정 저용':'판정 미적용'} · ${state.characterMaskTotal} cells</small>",

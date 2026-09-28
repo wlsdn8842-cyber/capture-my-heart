@@ -62,7 +62,7 @@ function updateCharacterMaskDebugHUD(){
   if(!enabled||!has){if(el)el.classList.add('hidden');return}
   if(!el){el=document.createElement('div');el.id='characterMaskDebug';el.className='character-mask-debug';gameScreen.appendChild(el)}
   el.classList.remove('hidden');
-  el.innerHTML=\`<b>MASK SHADOW · Stage \${state.stage}</b><span>AREA \${state.area.toFixed(1)}%</span><span>CHAR \${state.characterArea.toFixed(1)}%</span><small>판정 미적용 · \${state.characterMaskTotal} cells</small>\`;
+  el.innerHTML=`<b>MASK SHADOW · Stage ${state.stage}</b><span>AREA ${state.area.toFixed(1)}%</span><span>CHAR ${state.characterArea.toFixed(1)}%</span><small>판정 미적용 · ${state.characterMaskTotal} cells</small>`;
 }
 '''
 rep(Path('game.js'),calc_anchor,calc_block,'mask calculation')

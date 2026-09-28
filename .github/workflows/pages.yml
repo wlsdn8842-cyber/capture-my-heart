@@ -98,6 +98,7 @@ jobs:
           python overrides/mobile_landscape_hud_patch.py _site
           python overrides/mobile_viewport_enlarge_patch.py _site
           python overrides/feedback_round1_patch.py _site
+          python overrides/balance_round1_patch.py _site
 
           # Cloudflare-only files are not part of the static GitHub Pages build.
           rm -rf _site/functions
@@ -140,13 +141,13 @@ jobs:
           grep -q "setPointerCapture" _site/game.js
           grep -q "avoid-left" _site/styles.css
           grep -q "v0.6.0 mobile-landscape hotfix" _site/styles.css
-          grep -q "v0.8.3 feedback UX" _site/index.html
+          grep -q "v0.9.0 balance v1" _site/index.html
           grep -q "ca-pub-6414931308880829" _site/index.html
           grep -q "ca-pub-6414931308880829" _site/config.js
           grep -q "drawPlayerVisual" _site/game.js
           grep -q "drawEnemyVisual" _site/game.js
           grep -q "v0.6.5 focus pause hotfix" _site/game.js
-          grep -q "cmh-core-v0.8.4" _site/sw.js
+          grep -q "cmh-core-v0.9.0" _site/sw.js
           grep -q "function platform()" _site/analytics.js
           grep -q "function trafficSource()" _site/analytics.js
           grep -q "traffic_source:trafficSource()" _site/analytics.js
@@ -177,31 +178,19 @@ jobs:
           grep -q "feedback round1 UX" _site/styles.css
           grep -q "ending_auto_title" _site/game.js
           grep -q "gallery_art_open" _site/game.js
+          grep -q "BALANCE_V1" _site/game.js
+          grep -q "balanceV1Profile" _site/game.js
+          grep -q "shotClock" _site/game.js
+          grep -q "SETTINGS에서 BGM/SFX" _site/game.js
           grep -q "label:'STOP'" _site/game.js
           grep -q "label:'SLOW'" _site/game.js
-          grep -q "VERSION: '0.8.4'" _site/config.js
-          grep -q "v0.8.3 feedback UX" _site/index.html
+          grep -q "VERSION: '0.9.0'" _site/config.js
+          grep -q "v0.9.0 balance v1" _site/index.html
           node --check _site/game.js
           node --check _site/analytics.js
           node --check _site/feedback.js
           node --check _site/admin/admin.js
           echo "Prepared $(find _site -type f | wc -l) files"
-
-      - name: Inspect current game audio and balance anchors
-        shell: bash
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-          s=Path('_site/game.js').read_text(encoding='utf-8')
-          needles=['const STAGES=','const audio=','function showSettings','function updateEnemies','function maybeSpawnItem']
-          for n in needles:
-              i=s.find(n)
-              print('\n===== '+n+' =====')
-              if i<0:
-                  print('NOT FOUND')
-              else:
-                  print(s[i:i+5000])
-          PY
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

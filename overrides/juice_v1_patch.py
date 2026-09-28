@@ -173,8 +173,8 @@ old_shield="  if(state.shield>0){state.shield--;clearTrail();toast(`◆ SHIELD! 
 new_shield="  if(state.shield>0){state.shield--;juiceShieldBlockFX();clearTrail();toast(`◆ SHIELD! ${reason}`,true);audio.beep(260,.14,'sawtooth',.04);return}"
 rep(Path('game.js'),old_shield,new_shield,'shield block fx')
 
-old_miss="  state.lives--;clearTrail();state.projectiles=[];audio.beep(150,.25,'sawtooth',.05);toast(`MISS · ${reason}`,true,1800);updateHUD();track('life_lost',{stage:state.stage,reason_lives:state.lives});"
-new_miss="  state.lives--;juiceMissFX(reason);clearTrail();state.projectiles=[];audio.beep(150,.25,'sawtooth',.05);toast(`MISS · ${reason}`,true,1800);updateHUD();track('life_lost',{stage:state.stage,reason,lives:state.lives});"
+old_miss="  state.lives--;clearTrail();state.projectiles=[];"
+new_miss="  state.lives--;juiceMissFX(reason);clearTrail();state.projectiles=[];"
 rep(Path('game.js'),old_miss,new_miss,'miss fx')
 
 old_world_start="function drawWorld(c){\n  const t=performance.now();"

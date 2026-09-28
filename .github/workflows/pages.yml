@@ -100,6 +100,7 @@ jobs:
           python overrides/feedback_round1_patch.py _site
           python overrides/balance_round1_patch.py _site
           python overrides/juice_v1_patch.py _site
+          python overrides/boss_breakout_patch.py _site
 
           # Cloudflare-only files are not part of the static GitHub Pages build.
           rm -rf _site/functions
@@ -142,13 +143,13 @@ jobs:
           grep -q "setPointerCapture" _site/game.js
           grep -q "avoid-left" _site/styles.css
           grep -q "v0.6.0 mobile-landscape hotfix" _site/styles.css
-          grep -q "v0.9.1 juice v1" _site/index.html
+          grep -q "v0.10.0 boss breakout" _site/index.html
           grep -q "ca-pub-6414931308880829" _site/index.html
           grep -q "ca-pub-6414931308880829" _site/config.js
           grep -q "drawPlayerVisual" _site/game.js
           grep -q "drawEnemyVisual" _site/game.js
           grep -q "v0.6.5 focus pause hotfix" _site/game.js
-          grep -q "cmh-core-v0.9.1" _site/sw.js
+          grep -q "cmh-core-v0.10.0" _site/sw.js
           grep -q "function platform()" _site/analytics.js
           grep -q "function trafficSource()" _site/analytics.js
           grep -q "traffic_source:trafficSource()" _site/analytics.js
@@ -189,10 +190,16 @@ jobs:
           grep -q "juiceMissFX" _site/game.js
           grep -q "item_pickup" _site/game.js
           grep -q "prefers-reduced-motion" _site/game.js
+          grep -q "BOSS_BREAKOUT_V1" _site/game.js
+          grep -q "bossUpdatePattern" _site/game.js
+          grep -q "bossReopenCells" _site/game.js
+          grep -q "drawBossPatternVisual" _site/game.js
+          grep -q "boss_pattern_start" _site/game.js
+          grep -q "boss_territory_break" _site/game.js
           grep -q "label:'STOP'" _site/game.js
           grep -q "label:'SLOW'" _site/game.js
-          grep -q "VERSION: '0.9.1'" _site/config.js
-          grep -q "v0.9.1 juice v1" _site/index.html
+          grep -q "VERSION: '0.10.0'" _site/config.js
+          grep -q "v0.10.0 boss breakout" _site/index.html
           node --check _site/game.js
           node --check _site/analytics.js
           node --check _site/feedback.js

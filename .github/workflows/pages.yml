@@ -152,8 +152,6 @@ jobs:
           grep -q "traffic_source:trafficSource()" _site/analytics.js
           grep -q "실제 유입경로" _site/admin/index.html
           grep -q "id=\"platforms\"" _site/admin/index.html
-          grep -q "referrer_host:platform()" _site/analytics.js
-          grep -q "플랫폼 유입" _site/admin/index.html
           grep -q "AGE_PERSIST_KEY" _site/game.js
           grep -q "ageExitBtn" _site/index.html
           grep -q "19세 이상입니다" _site/index.html

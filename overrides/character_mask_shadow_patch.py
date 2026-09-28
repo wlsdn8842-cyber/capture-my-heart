@@ -15,7 +15,7 @@ rep(Path('game.js'),
 "  enemies:[], projectiles:[], items:[], area:0, lastArea:0, characterArea:null, characterMaskTotal:0, clearMilestone:0,",
 'state fields')
 
-calc_anchor="function calcArea(){let claimed=0,total=(GW-4)*(GH-4);for(let y=2;y<GH-2;y++)for(let x=2;x<GW-2;x++)if(getCell(x,y)===CLAIMED)claimed++;return claimed/total*100}\\n"
+calc_anchor="function calcArea(){let claimed=0,total=(GW-4)*(GH-4);for(let y=2;y<GH-2;y++)for(let x=2;x<GW-2;x++)if(getCell(x,y)===CLAIMED)claimed++;return claimed/total*100}\n"
 calc_block=r'''function calcArea(){let claimed=0,total=(GW-4)*(GH-4);for(let y=2;y<GH-2;y++)for(let x=2;x<GW-2;x++)if(getCell(x,y)===CLAIMED)claimed++;return claimed/total*100}
 
 // v0.11.0 Character Mask Shadow Mode.
@@ -73,18 +73,18 @@ rep(Path('game.js'),
 'init grid character area')
 
 rep(Path('game.js'),
-"function captureRegion(){\\n  const before=state.area;",
-"function captureRegion(){\\n  const before=state.area,beforeCharacter=Number.isFinite(state.characterArea)?state.characterArea:null;",
+"function captureRegion(){\n  const before=state.area;",
+"function captureRegion(){\n  const before=state.area,beforeCharacter=Number.isFinite(state.characterArea)?state.characterArea:null;",
 'capture before char')
 
 rep(Path('game.js'),
-"state.lastArea=before;state.area=calcArea();\\n  if(mobileUXActive())resetMobileCaptureLock('capture_complete');",
-"state.lastArea=before;state.area=calcArea();refreshCharacterArea();\\n  if(mobileUXActive())resetMobileCaptureLock('capture_complete');",
+"state.lastArea=before;state.area=calcArea();\n  if(mobileUXActive())resetMobileCaptureLock('capture_complete');",
+"state.lastArea=before;state.area=calcArea();refreshCharacterArea();\n  if(mobileUXActive())resetMobileCaptureLock('capture_complete');",
 'capture refresh char')
 
 rep(Path('game.js'),
-"  juiceCaptureFX(delta,before,state.area);\\n  state.score+=points;",
-"  juiceCaptureFX(delta,before,state.area);\\n  if(Number.isFinite(state.characterArea))track('character_mask_shadow',{stage:state.stage,area:Number(state.area.toFixed(2)),character_area:Number(state.characterArea.toFixed(2)),character_delta:beforeCharacter===null?null:Number((state.characterArea-beforeCharacter).toFixed(2))});\\n  state.score+=points;",
+"  juiceCaptureFX(delta,before,state.area);\n  state.score+=points;",
+"  juiceCaptureFX(delta,before,state.area);\n  if(Number.isFinite(state.characterArea))track('character_mask_shadow',{stage:state.stage,area:Number(state.area.toFixed(2)),character_area:Number(state.characterArea.toFixed(2)),character_delta:beforeCharacter===null?null:Number((state.characterArea-beforeCharacter).toFixed(2))});\n  state.score+=points;",
 'capture shadow analytics')
 
 rep(Path('game.js'),
@@ -103,8 +103,8 @@ rep(Path('game.js'),
 'tutorial mask off')
 
 rep(Path('index.html'),
-'  <script src="feedback.js"></script>\\n  <script src="game.js"></script>',
-'  <script src="feedback.js"></script>\\n  <script src="character_masks.js"></script>\\n  <script src="game.js"></script>',
+'  <script src="feedback.js"></script>\n  <script src="game.js"></script>',
+'  <script src="feedback.js"></script>\n  <script src="character_masks.js"></script>\n  <script src="game.js"></script>',
 'load character mask data')
 
 rep(Path('index.html'),'<div class="version">v0.10.0 boss breakout</div>','<div class="version">v0.11.0 mask shadow</div>','version label')

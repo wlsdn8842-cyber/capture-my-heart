@@ -10,6 +10,8 @@
   const FIRST_SEEN_KEY = 'cmh.analytics.firstSeenAt';
   const LAST_SEEN_KEY = 'cmh.analytics.lastSeenAt';
   const EXCLUDE_KEY = 'cmh.analytics.exclude';
+  const REFERRER_KEY = 'cmh.analytics.referrerHost.v2';
+  const UTM_SOURCE_KEY = 'cmh.analytics.utmSource.v2';
   let flushing = false;
   let heartbeatTimer = null;
 
@@ -49,14 +51,30 @@
     if(coarse && w<=1100)return 'tablet';
     return 'desktop';
   }
-  function referrerHost(){
-    try{return document.referrer?new URL(document.referrer).hostname.slice(0,120):''}catch(_){return ''}
+  function rawReferrerHost(){
+    try{return document.referrer?new URL(document.referrer).hostname.toLowerCase().slice(0,120):''}catch(_){return ''}
+  }
+  function landingReferrerHost(){
+    const existing=safeSessionGet(REFERRER_KEY);
+    if(existing!==null)return existing;
+    const h=rawReferrerHost();
+    safeSessionSet(REFERRER_KEY,h);
+    return h;
+  }
+  function queryParam(name){
+    try{return (new URLSearchParams(location.search).get(name)||'').slice(0,80)}catch(_){return ''}
+  }
+  function utmSource(){
+    const existing=safeSessionGet(UTM_SOURCE_KEY);
+    if(existing!==null)return existing;
+    const v=queryParam('utm_source');
+    safeSessionSet(UTM_SOURCE_KEY,v);
+    return v;
   }
   function platform(){
     const hosts=[];
     const pushHost=(h)=>{h=String(h||'').toLowerCase();if(h)hosts.push(h)};
     pushHost(location.hostname);
-    pushHost(referrerHost());
     try{
       for(const origin of Array.from(location.ancestorOrigins||[])){
         try{pushHost(new URL(origin).hostname)}catch(_){}
@@ -65,6 +83,22 @@
     if(hosts.some(h=>h==='itch.io'||h.endsWith('.itch.io')||h==='itch.zone'||h.endsWith('.itch.zone')))return 'itch.io';
     if(hosts.some(h=>h==='github.io'||h.endsWith('.github.io')))return 'GitHub Pages';
     return 'Other / Direct';
+  }
+  function trafficSource(){
+    const utm=utmSource();
+    if(utm)return 'UTM · '+utm;
+    const h=landingReferrerHost();
+    if(!h)return '(direct / unknown)';
+    if(h==='gall.dcinside.com'||h==='m.dcinside.com'||h.endsWith('.dcinside.com'))return 'DCInside';
+    if(h==='reddit.com'||h==='www.reddit.com'||h.endsWith('.reddit.com'))return 'Reddit';
+    if(h==='google.com'||h==='www.google.com'||h.startsWith('google.'))return 'Google';
+    if(h==='naver.com'||h==='www.naver.com'||h.endsWith('.naver.com'))return 'Naver';
+    if(h==='daum.net'||h==='www.daum.net'||h.endsWith('.daum.net'))return 'Daum';
+    if(h==='itch.io'||h.endsWith('.itch.io')||h==='itch.zone'||h.endsWith('.itch.zone'))return 'itch.io';
+    if(h==='github.com'||h==='www.github.com'||h.endsWith('.github.com'))return 'GitHub';
+    if(h==='gamejob.co.kr'||h==='www.gamejob.co.kr')return 'GameJob';
+    if(h===String(location.hostname||'').toLowerCase())return '(direct / internal)';
+    return h;
   }
   function readQueue(){ try{return JSON.parse(safeLocalGet(QUEUE_KEY)||'[]')}catch(_){return []} }
   function writeQueue(items){ safeLocalSet(QUEUE_KEY,JSON.stringify(items.slice(-(cfg.MAX_LOCAL_QUEUE||200)))) }
@@ -98,7 +132,9 @@
       device:device(),
       viewport:`${window.innerWidth}x${window.innerHeight}`,
       language:(navigator.language||'').slice(0,16),
-      referrer_host:platform(),
+      platform:platform(),
+      traffic_source:trafficSource(),
+      referrer_host:landingReferrerHost(),
       path:(location.pathname||'/').slice(0,160),
       params:cleanParams(params)
     };
@@ -151,7 +187,13 @@
     track('session_start',{
       returning:visitNo()>1,
       visit_no:visitNo(),
-      first_seen_at:(safeLocalGet(FIRST_SEEN_KEY)||'').slice(0,32)
+      first_seen_at:(safeLocalGet(FIRST_SEEN_KEY)||'').slice(0,32),
+      platform:platform(),
+      traffic_source:trafficSource(),
+      referrer_host:landingReferrerHost(),
+      utm_source:utmSource(),
+      utm_medium:queryParam('utm_medium'),
+      utm_campaign:queryParam('utm_campaign')
     });
     track('page_view',{});
     flush();
@@ -168,6 +210,6 @@
     window.addEventListener('online',flush);
   }
 
-  window.CMH_ANALYTICS={track,flush,sessionId,visitorId,visitNo,sessionSeconds,enabled,isExcluded,platform};
+  window.CMH_ANALYTICS={track,flush,sessionId,visitorId,visitNo,sessionSeconds,enabled,isExcluded,platform,trafficSource,landingReferrerHost};
   init();
 })();

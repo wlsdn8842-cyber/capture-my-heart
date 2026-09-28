@@ -103,6 +103,7 @@
     renderFunnel(d.funnel||[]);
     renderRank('#deaths',(d.deaths||[]).map(x=>({name:x.reason,value:x.count})));
     renderRank('#sources',(d.sources||[]).map(x=>({name:x.source,value:x.sessions})));
+    renderRank('#platforms',(d.platforms||[]).map(x=>({name:x.platform,value:x.sessions})));
     renderDevices(d.devices||[]);
     renderDaily(d.daily||[]);
     renderFeedback(d.latestFeedback||[],d.feedbackSummary||{});
@@ -181,7 +182,7 @@
   function renderSessions(rows){
     const body=$('#sessionRows');
     if(!rows.length){body.innerHTML='<tr><td colspan="5">아직 플레이 데이터가 없습니다.</td></tr>';return}
-    body.innerHTML=rows.map(x=>'<tr><td>'+kst(x.startedAt)+'</td><td><span class="stage-pill">S'+(x.maxStage||0)+'</span></td><td>'+duration(x.seconds)+'</td><td>'+fmt(x.deaths)+'</td><td>'+esc(x.device||'unknown')+(x.visitNo>1?' · '+x.visitNo+'회차':' · 첫 방문')+'</td></tr>').join('');
+    body.innerHTML=rows.map(x=>'<tr><td>'+kst(x.startedAt)+'</td><td><span class="stage-pill">S'+(x.maxStage||0)+'</span></td><td>'+duration(x.seconds)+'</td><td>'+fmt(x.deaths)+'</td><td>'+esc(x.device||'unknown')+(x.visitNo>1?' · '+x.visitNo+'회차':' · 첫 방문')+'<br><small>'+esc(x.source||'(unknown)')+' → '+esc(x.platform||'unknown')+'</small></td></tr>').join('');
   }
 
   $('#loginForm').addEventListener('submit',login);

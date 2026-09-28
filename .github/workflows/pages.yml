@@ -105,6 +105,7 @@ jobs:
           python overrides/character_mask_shadow_patch.py _site
           python overrides/character_mask_stage1_gate_patch.py _site
           python overrides/stage1_emergency_escape_patch.py _site
+          python overrides/containment_pressure_patch.py _site
 
           # Cloudflare-only files are not part of the static GitHub Pages build.
           rm -rf _site/functions
@@ -147,13 +148,13 @@ jobs:
           grep -q "setPointerCapture" _site/game.js
           grep -q "avoid-left" _site/styles.css
           grep -q "v0.6.0 mobile-landscape hotfix" _site/styles.css
-          grep -q "v0.11.2 stage1 escape" _site/index.html
+          grep -q "v0.12.0 containment pressure" _site/index.html
           grep -q "ca-pub-6414931308880829" _site/index.html
           grep -q "ca-pub-6414931308880829" _site/config.js
           grep -q "drawPlayerVisual" _site/game.js
           grep -q "drawEnemyVisual" _site/game.js
           grep -q "v0.6.5 focus pause hotfix" _site/game.js
-          grep -q "cmh-core-v0.11.2" _site/sw.js
+          grep -q "cmh-core-v0.12.0" _site/sw.js
           grep -q "function platform()" _site/analytics.js
           grep -q "function trafficSource()" _site/analytics.js
           grep -q "traffic_source:trafficSource()" _site/analytics.js
@@ -210,11 +211,17 @@ jobs:
           grep -q "stage1EmergencyEscape" _site/game.js
           grep -q "stage1_escape" _site/game.js
           grep -q "PANIC! · BREAKOUT!" _site/game.js
+          grep -q "CONTAINMENT_V1" _site/game.js
+          grep -q "bossOpenComponent" _site/game.js
+          grep -q "boss_containment_start" _site/game.js
+          grep -q "containmentPendingMilestone" _site/game.js
+          grep -q "containmentBoost" _site/game.js
+          grep -q "containment pressure" _site/styles.css
           test -f _site/admin/mask-editor.html
           grep -q "label:'STOP'" _site/game.js
           grep -q "label:'SLOW'" _site/game.js
-          grep -q "VERSION: '0.11.2'" _site/config.js
-          grep -q "v0.11.2 stage1 escape" _site/index.html
+          grep -q "VERSION: '0.12.0'" _site/config.js
+          grep -q "v0.12.0 containment pressure" _site/index.html
           node --check _site/game.js
           node --check _site/analytics.js
           node --check _site/feedback.js

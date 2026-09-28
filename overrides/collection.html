@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <title>My Complete Collection | Capture My Heart!</title>
+  <style>
+    :root{color-scheme:dark;--bg:#09050d;--panel:#1b0d24;--text:#fff7ff;--muted:#c9b9cf;--pink:#ff4fa3;--violet:#7658ff}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 20% 0,#35143d,#100717 45%,#09050d);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.6}
+    .wrap{width:min(1060px,calc(100% - 28px));margin:auto;padding:40px 0 60px}.hero{text-align:center;margin-bottom:26px}.eyebrow{font-size:.75rem;letter-spacing:.18em;color:#ffbadb;font-weight:900}.hero h1{font-size:clamp(2rem,6vw,4.5rem);line-height:1;margin:.35rem 0 .7rem}.hero p{color:var(--muted);margin:0 auto;max-width:720px}
+    .panel{background:rgba(27,13,36,.9);border:1px solid rgba(255,255,255,.13);border-radius:22px;padding:20px;box-shadow:0 20px 70px rgba(0,0,0,.35)}
+    .actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:20px 0}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 20px;border-radius:999px;text-decoration:none;border:1px solid rgba(255,255,255,.16);color:#fff;font-weight:900;background:rgba(255,255,255,.06)}.btn.primary{background:linear-gradient(135deg,var(--pink),var(--violet));border:0}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:20px}.card{overflow:hidden;border-radius:18px;border:1px solid rgba(255,255,255,.13);background:#120919}.card img{display:block;width:100%;aspect-ratio:4/3;object-fit:contain;background:#050208}.meta{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px}.meta strong{font-size:.9rem}.meta a{font-size:.78rem;color:#ffacd4}
+    .status{text-align:center;padding:28px;color:var(--muted)}.hidden{display:none!important}.fine{margin-top:20px;text-align:center;color:#9f91a7;font-size:.78rem}.fine a{color:#d9c8df}
+    .age{position:fixed;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;background:rgba(5,2,10,.94);padding:18px}.age-card{width:min(460px,94vw);padding:24px;text-align:center;border-radius:22px;background:#1d0c28;border:1px solid rgba(255,255,255,.16)}.age-card h2{margin-top:0}.age-actions{display:flex;gap:9px}.age-actions>*{flex:1}
+    button.btn{cursor:pointer;font:inherit}
+    @media(max-width:650px){.grid{grid-template-columns:1fr}.wrap{padding-top:24px}.panel{padding:13px}.age-actions{flex-direction:column}}
+  </style>
+</head>
+<body>
+  <div id="ageGate" class="age hidden">
+    <div class="age-card">
+      <h2>19+ 콘텐츠 안내</h2>
+      <p>이 컬렉션은 Capture My Heart!의 완주 보상 페이지이며 19세 이상 이용자를 대상으로 합니다.</p>
+      <label style="display:block;margin:12px 0;color:#cdbbd1"><input id="rememberAge" type="checkbox"> 30일 동안 기억하기</label>
+      <div class="age-actions"><button class="btn primary" id="ageYes">19세 이상입니다</button><a class="btn" href="https://wlsdn8842-cyber.github.io/">나가기</a></div>
+    </div>
+  </div>
+
+  <main class="wrap">
+    <section class="hero">
+      <div class="eyebrow">ALL STAGES CLEAR REWARD</div>
+      <h1>MY COMPLETE COLLECTION</h1>
+      <p>Stage 1~10 완주 이미지를 한곳에서 확인하고 저장할 수 있습니다.</p>
+    </section>
+    <section class="panel">
+      <div id="status" class="status">컬렉션 링크를 확인하는 중…</div>
+      <div id="content" class="hidden">
+        <div class="actions">
+          <a class="btn primary" href="assets/cmh-complete-collection.zip" download>⬇ Stage 1~10 ZIP 한 번에 받기</a>
+          <a class="btn" href="./">게임으로 돌아가기</a>
+        </div>
+        <div id="grid" class="grid"></div>
+      </div>
+    </section>
+    <p class="fine">컬렉션 접근 링크에는 이메일 주소가 포함되지 않습니다. <a href="privacy.html">개인정보처리방침</a></p>
+  </main>
+
+<script>
+(() => {
+  'use strict';
+  const VERIFY='https://cvfmikycscmfjmooxhni.supabase.co/functions/v1/cmh-collection-verify';
+  const names=['Maid Cafe','Racing Girl','Office Lady','Miko','Idol','Resort','Wizard','Gothic','Kung-fu','Final Queen'];
+  const token=new URLSearchParams(location.search).get('token')||'';
+  const status=document.getElementById('status'),content=document.getElementById('content'),grid=document.getElementById('grid');
+  const AGE_KEY='cmh.age19.acceptedAt',SESSION_KEY='cmh.age19.session',REMEMBER=30*24*60*60*1000;
+
+  function ageAllowed(){
+    try{
+      const t=Number(localStorage.getItem(AGE_KEY)||0);
+      if(t>0 && Date.now()-t<REMEMBER)return true;
+      if(t)localStorage.removeItem(AGE_KEY);
+    }catch(_){}
+    try{return sessionStorage.getItem(SESSION_KEY)==='1'}catch(_){return false}
+  }
+  function gate(){
+    if(ageAllowed())return;
+    const g=document.getElementById('ageGate');g.classList.remove('hidden');
+    document.getElementById('ageYes').onclick=()=>{
+      try{
+        if(document.getElementById('rememberAge').checked)localStorage.setItem(AGE_KEY,String(Date.now()));
+        else sessionStorage.setItem(SESSION_KEY,'1');
+      }catch(_){}
+      g.classList.add('hidden');
+    };
+  }
+  function render(){
+    grid.innerHTML=names.map((name,i)=>{
+      const n=String(i+1).padStart(2,'0'),src=`assets/images/stage${n}.webp`;
+      return `<article class="card"><img src="${src}" alt="Stage ${i+1} ${name}"><div class="meta"><strong>Stage ${i+1} · ${name}</strong><a href="${src}" download>이미지 저장</a></div></article>`;
+    }).join('');
+    status.classList.add('hidden');content.classList.remove('hidden');
+  }
+  async function verify(){
+    if(!/^[0-9a-f-]{36}$/i.test(token)){status.textContent='유효한 컬렉션 링크가 아닙니다.';return}
+    try{
+      const r=await fetch(VERIFY+'?token='+encodeURIComponent(token));
+      const d=await r.json().catch(()=>({}));
+      if(!r.ok||!d.ok){status.textContent=d.code==='expired'?'이 컬렉션 링크는 만료되었습니다.':'컬렉션 링크를 확인할 수 없습니다.';return}
+      render();
+    }catch(_){status.textContent='네트워크 문제로 링크를 확인하지 못했습니다. 잠시 후 다시 시도해 주세요.'}
+  }
+  gate();verify();
+})();
+</script>
+</body>
+</html>

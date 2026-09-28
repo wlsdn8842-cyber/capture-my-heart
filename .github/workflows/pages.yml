@@ -42,6 +42,8 @@ jobs:
           # GitHub Pages public-beta overrides.
           cp overrides/config.js _site/config.js
           cp overrides/feedback.js _site/feedback.js
+          cp overrides/collection.js _site/collection.js
+          cp overrides/collection.html _site/collection.html
           cp overrides/analytics.js _site/analytics.js
           cp overrides/character_masks.js _site/character_masks.js
           cp overrides/privacy.html _site/privacy.html
@@ -106,6 +108,15 @@ jobs:
           python overrides/character_mask_stage1_gate_patch.py _site
           python overrides/stage1_emergency_escape_patch.py _site
           python overrides/containment_pressure_patch.py _site
+          python overrides/collection_reward_patch.py _site
+
+          # Build the all-clear collection archive from the deployed stage art.
+          zip -q -j _site/assets/cmh-complete-collection.zip \
+            _site/assets/images/stage01.webp _site/assets/images/stage02.webp \
+            _site/assets/images/stage03.webp _site/assets/images/stage04.webp \
+            _site/assets/images/stage05.webp _site/assets/images/stage06.webp \
+            _site/assets/images/stage07.webp _site/assets/images/stage08.webp \
+            _site/assets/images/stage09.webp _site/assets/images/stage10.webp
 
           # Cloudflare-only files are not part of the static GitHub Pages build.
           rm -rf _site/functions
@@ -115,6 +126,9 @@ jobs:
           test -f _site/index.html
           test -f _site/game.js
           test -f _site/analytics.js
+          test -f _site/collection.js
+          test -f _site/collection.html
+          test -f _site/assets/cmh-complete-collection.zip
           test -f _site/admin/index.html
           test -f _site/admin/admin.js
           test -f _site/assets/images/title.webp
@@ -148,13 +162,13 @@ jobs:
           grep -q "setPointerCapture" _site/game.js
           grep -q "avoid-left" _site/styles.css
           grep -q "v0.6.0 mobile-landscape hotfix" _site/styles.css
-          grep -q "v0.12.0 containment pressure" _site/index.html
+          grep -q "v0.12.1 complete collection" _site/index.html
           grep -q "ca-pub-6414931308880829" _site/index.html
           grep -q "ca-pub-6414931308880829" _site/config.js
           grep -q "drawPlayerVisual" _site/game.js
           grep -q "drawEnemyVisual" _site/game.js
           grep -q "v0.6.5 focus pause hotfix" _site/game.js
-          grep -q "cmh-core-v0.12.0" _site/sw.js
+          grep -q "cmh-core-v0.12.1" _site/sw.js
           grep -q "function platform()" _site/analytics.js
           grep -q "function trafficSource()" _site/analytics.js
           grep -q "traffic_source:trafficSource()" _site/analytics.js
@@ -220,11 +234,16 @@ jobs:
           test -f _site/admin/mask-editor.html
           grep -q "label:'STOP'" _site/game.js
           grep -q "label:'SLOW'" _site/game.js
-          grep -q "VERSION: '0.12.0'" _site/config.js
-          grep -q "v0.12.0 containment pressure" _site/index.html
+          grep -q "VERSION: '0.12.1'" _site/config.js
+          grep -q "COLLECTION:" _site/config.js
+          grep -q "cmh-collection-request" _site/config.js
+          grep -q "endingCollection" _site/game.js
+          grep -q "collection.js" _site/index.html
+          grep -q "v0.12.1 complete collection" _site/index.html
           node --check _site/game.js
           node --check _site/analytics.js
           node --check _site/feedback.js
+          node --check _site/collection.js
           node --check _site/admin/admin.js
           echo "Prepared $(find _site -type f | wc -l) files"
 
@@ -244,7 +263,7 @@ jobs:
           set -euo pipefail
           rm -rf _itch
           mkdir -p _itch
-          cp _site/index.html _site/styles.css _site/config.js _site/ads.js _site/analytics.js _site/feedback.js _site/character_masks.js _site/game.js _site/manifest.webmanifest _site/privacy.html _site/sw.js _itch/
+          cp _site/index.html _site/styles.css _site/config.js _site/ads.js _site/analytics.js _site/feedback.js _site/collection.js _site/collection.html _site/character_masks.js _site/game.js _site/manifest.webmanifest _site/privacy.html _site/sw.js _itch/
           cp -a _site/assets _itch/assets
           test -f _itch/index.html
           test -f _itch/game.js

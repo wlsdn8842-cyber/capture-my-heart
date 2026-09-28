@@ -187,6 +187,22 @@ jobs:
           node --check _site/admin/admin.js
           echo "Prepared $(find _site -type f | wc -l) files"
 
+      - name: Inspect current game audio and balance anchors
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          s=Path('_site/game.js').read_text(encoding='utf-8')
+          needles=['const STAGES=','const audio=','function showSettings','function updateEnemies','function maybeSpawnItem']
+          for n in needles:
+              i=s.find(n)
+              print('\n===== '+n+' =====')
+              if i<0:
+                  print('NOT FOUND')
+              else:
+                  print(s[i:i+5000])
+          PY
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:

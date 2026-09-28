@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CMH Character Mask Editor</title>
+<style>
+:root{color-scheme:dark;font-family:Inter,system-ui,sans-serif}*{box-sizing:border-box}body{margin:0;background:#08050d;color:#f8eef9}.wrap{width:min(1320px,98vw);margin:22px auto}.head,.toolbar,.stats{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.head{justify-content:space-between;margin-bottom:12px}.head h1{font-size:1.35rem;margin:0}.muted{color:#aa9eb1;font-size:.78rem}.panel{background:#140b1c;border:1px solid #392545;border-radius:16px;padding:12px}.toolbar{margin-bottom:10px}button,select,input,textarea{background:#21122d;color:#fff;border:1px solid #54355f;border-radius:9px;padding:8px 10px}button{cursor:pointer}button.active{background:#b82d84;border-color:#ff74bd}.canvas-shell{position:relative;width:100%;aspect-ratio:4/3;overflow:hidden;border-radius:12px;background:#000;touch-action:none}.canvas-shell canvas{position:absolute;inset:0;width:100%;height:100%}#grid{image-rendering:pixelated}.stats{justify-content:space-between;margin-top:9px}.export{width:100%;min-height:92px;margin-top:10px;font-family:ui-monospace,monospace;font-size:.72rem}.tip{padding:10px 12px;margin:10px 0;border-left:3px solid #ff5cac;background:#170c20;font-size:.8rem;line-height:1.5}.legend span{display:inline-block;margin-right:12px}.dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:4px}.pink{background:#ff3fa0}.green{background:#71ff90}a{color:#ff9ed0}
+</style>
+</head>
+<body><div class="wrap">
+<div class="head"><div><div class="muted">CAPTURE MY HEART · AUTHORING TOOL</div><h1>Character Mask Editor</h1></div><a href="./">← 관리자 분석실</a></div>
+<div class="tip">Stage 이미지를 <b>120×90 게임 셀</b> 기준으로 칠합니다. 분홍색이 캐릭터 판정 영역입니다. 수정값은 이 브라우저에만 저장되며, <b>EXPORT</b> 결과를 ChatGPT에 보내면 정식 빌드에 반영할 수 있습니다.</div>
+<div class="panel">
+<div class="toolbar">
+<label>Stage <select id="stage"></select></label>
+<button id="add" class="active">+ ADD</button><button id="erase">− ERASE</button>
+<label>Brush <select id="brush"><option>1</option><option>2</option><option>3</option><option>5</option></select></label>
+<button id="gridBtn">GRID ON</button><button id="reset">RESET PROD</button><button id="clear">CLEAR</button><button id="save">SAVE LOCAL</buttton><button id="exportBtn">EXPORT</button>
+</div>
+<div class="canvas-shell"><canvas id="img" width="960" height="720"></canvas><canvas id="grid" width="960" height="720"></canvas></div>
+<div class="stats"><div id="stat">—</div><div class="legend"><span><i class="dot pink"></i>캐락터 마스킬</span><span><i class="dot green"></i>브러시</span></div></div>
+<textarea id="export" class="export" placeholder="EXPORT로 누르면 BITS 값이 표시퐩니다."></textarea>
+<div class="toolbar" style="margin-top:8px"><button id="importBtn">IMPORT TEXTAREA</button><span class="muted">��</span></div>
+</div></div>
+<script src="../character_masks.js"></script>
+<script>
+(()=>{'use strict';const GW=120,GH=90,CW=8,CH=8,$=s=>document.querySelector(s),img=$('#img'),ctx=img.getContext('2d'),ov=$('#grid'),oc=ov.getContext('2d');let stage=1,mode='add',brush=1,showGrid=true,mask=new Uint8Array(GW*GH),down=false,last=-1,image=new Image();
+const names=['','Maid Cafe','Racing Girl','Office Lady','Miko','Idol','Resort','Wizard','Gothic','Kung-fu','Final Queen'];const key=n=>'cmh.mask.editor.stage.'+n;for(let i=1;i<=10;i++)$('#stage').append(new Option(i+' · '+names[i],i));
+function decode(bits){const out=new Uint8Array(GW*GH);if(!bits)return out;const raw=atob(bits);for(let i=0;i<out.length;i++)out[i]=(raw.charCodeAt(i>>3)>>(i&7))&1;return out}
+function encode(a){const b=new Uint8Array(Math.ceil(a.length/8));for(let i=0;i<a.length;i++)if(a[i])b[i>>3]|=1<<(i&7);let s='';for(const x of b)s+=String.fromCharCode(x);return btoa(s)}
+function prodMask(n){return decode(window.CMH_CHARACTER_MASKS?.stages?.[n]?.bits||'')}
+function load(n){stage=Number(n);const saved=localStorage.getItem(key(stage));mask=saved?decode(saved):prodMask(stage);image.onload=draw;image.src='../assets/images/stage'+String(stage).padStart(2,'0')+'.webp';$('#export').value='';draw()}
+function draw(){ctx.clearRect(0,0,960,720);if(image.complete&&image.naturalWidth)ctx.drawImage(image,0,0,960,720);oc.clearRect(0,0,960,720);oc.fillStyle='rgba(255,40,150,.38)';for(let y=0;y<GH;y++)for(let x=0;x<GW;x++)if(mask[y*GW+x])oc.fillRect(x*CW,y*CH,CW,CH);if(showGrid){oc.strokeStyle='rgba(255,255,255,.12)';oc.lineWidth=.5;for(let x=0;x<=GW;x++){oc.beginPath();oc.moveTo(x*CW,0);oc.lineTo(x*CW,720);oc.stroke()}for(let y=0;y<=GH;y++){oc.beginPath();oc.moveTo(0,y*CH);oc.lineTo(960,y*CH);oc.stroke()}}const cells=mask.reduce((a,b)=>a+b,0);$('#stat').textContent=`Stage ${stage} · ${cells} cells · ${(cells/(GW*GH)*100).toFixed(1)}% of board`;}
+function paintEvent(e){const r=ov.getBoundingClientRect(),x=Math.floor((e.clientX-r.left)/r.width*GW),y=Math.floor((e.clientY-r.top)/r.height*GH);if(x<0||y<0||x>=GW||y>=GH)return;const k=y*GW+x;if(k===last)return;last=k;const rad=Math.floor(brush/2);for(let yy=y-rad;yy<=y+rad;yy++)for(let xx=x-rad;xx<=x+rad;xx++)if(xx>=0&&yy>=0&&xx<GW&&yy<GH)mask[yy*GW+xx]=mode==='add'?1:0;draw()}
+ov.addEventListener('pointerdown',e=>{down=true;last=-1;ov.setPointerCapture?.(e.pointerId);paintEvent(e)});ov.addEventListener('pointermove',e=>{if(down)paintEvent(e)});['pointerup','pointercancel'].forEach(n=>ov.addEventListener(n,()=>{down=false;last=-1}));
+$('#stage').onchange=e=>load(e.target.value);$('#brush').onchange=e=>brush=Number(e.target.value);$('#add').onclick=()=>{mode='add';$('#add').classList.add('active');$('#erase').classList.remove('active')};$('#erase').onclick=()=>{mode='erase';$('#erase').classList.add('active');$('#add').classList.remove('active')};$('#gridBtn').onclick=()=>{showGrid=!showGrid;$('#gridBtn').textContent=showGrid?'GRID ON':'GRID OFF';draw()};$('#reset').onclick=()=>{mask=prodMask(stage);draw()};$('#clear').onclick=()=>{mask.fill(0);draw()};$('#save').onclick=()=>{localStorage.setItem(key(stage),encode(mask));alert('이 브라우저에 저장했습니다.')};$('#exportBtn').onclick=async()=>{const val=encode(mask);$('#export').value=`STAGE=${stage}\nCELLS=${mask.reduce((a,b)=>a+b,0)}\nBITS=${val}`;try{await navigator.clipboard.writeText($('#export').value)}catch(_){} };$('#importBtn').onclick=()=>{const t=$('#export').value.trim();const m=t.match(/BITS=([A-Za-z0-9+/=]+)/)||t.match(/^([A-Za-z0-9+/=]+)$/);if(!m)return alert('BITS 값을 찾지 못했습니다.');mask=decode(m[1]);draw()};load(1)})();
+</script></body></html>

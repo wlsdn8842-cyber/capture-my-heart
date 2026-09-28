@@ -43,6 +43,7 @@ jobs:
           cp overrides/config.js _site/config.js
           cp overrides/feedback.js _site/feedback.js
           cp overrides/analytics.js _site/analytics.js
+          cp overrides/character_masks.js _site/character_masks.js
           cp overrides/privacy.html _site/privacy.html
           cp overrides/sw.js _site/sw.js
 
@@ -101,6 +102,7 @@ jobs:
           python overrides/balance_round1_patch.py _site
           python overrides/juice_v1_patch.py _site
           python overrides/boss_breakout_patch.py _site
+          python overrides/character_mask_shadow_patch.py _site
 
           # Cloudflare-only files are not part of the static GitHub Pages build.
           rm -rf _site/functions
@@ -143,13 +145,13 @@ jobs:
           grep -q "setPointerCapture" _site/game.js
           grep -q "avoid-left" _site/styles.css
           grep -q "v0.6.0 mobile-landscape hotfix" _site/styles.css
-          grep -q "v0.10.0 boss breakout" _site/index.html
+          grep -q "v0.11.0 mask shadow" _site/index.html
           grep -q "ca-pub-6414931308880829" _site/index.html
           grep -q "ca-pub-6414931308880829" _site/config.js
           grep -q "drawPlayerVisual" _site/game.js
           grep -q "drawEnemyVisual" _site/game.js
           grep -q "v0.6.5 focus pause hotfix" _site/game.js
-          grep -q "cmh-core-v0.10.0" _site/sw.js
+          grep -q "cmh-core-v0.11.0" _site/sw.js
           grep -q "function platform()" _site/analytics.js
           grep -q "function trafficSource()" _site/analytics.js
           grep -q "traffic_source:trafficSource()" _site/analytics.js
@@ -196,10 +198,15 @@ jobs:
           grep -q "drawBossPatternVisual" _site/game.js
           grep -q "boss_pattern_start" _site/game.js
           grep -q "boss_territory_break" _site/game.js
+          test -f _site/character_masks.js
+          grep -q "CMH_CHARACTER_MASKS" _site/character_masks.js
+          grep -q "Character Mask Shadow Mode" _site/game.js
+          grep -q "character_mask_shadow" _site/game.js
+          test -f _site/admin/mask-editor.html
           grep -q "label:'STOP'" _site/game.js
           grep -q "label:'SLOW'" _site/game.js
-          grep -q "VERSION: '0.10.0'" _site/config.js
-          grep -q "v0.10.0 boss breakout" _site/index.html
+          grep -q "VERSION: '0.11.0'" _site/config.js
+          grep -q "v0.11.0 mask shadow" _site/index.html
           node --check _site/game.js
           node --check _site/analytics.js
           node --check _site/feedback.js
@@ -222,7 +229,7 @@ jobs:
           set -euo pipefail
           rm -rf _itch
           mkdir -p _itch
-          cp _site/index.html _site/styles.css _site/config.js _site/ads.js _site/analytics.js _site/feedback.js _site/game.js _site/manifest.webmanifest _site/privacy.html _site/sw.js _itch/
+          cp _site/index.html _site/styles.css _site/config.js _site/ads.js _site/analytics.js _site/feedback.js _site/character_masks.js _site/game.js _site/manifest.webmanifest _site/privacy.html _site/sw.js _itch/
           cp -a _site/assets _itch/assets
           test -f _itch/index.html
           test -f _itch/game.js

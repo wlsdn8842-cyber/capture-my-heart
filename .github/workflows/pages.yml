@@ -109,6 +109,7 @@ jobs:
           python overrides/stage1_emergency_escape_patch.py _site
           python overrides/containment_pressure_patch.py _site
           python overrides/collection_reward_patch.py _site
+          python overrides/stage1_rage_v2_patch.py _site
 
           # Build the all-clear collection archive from the deployed stage art.
           zip -q -j _site/assets/cmh-complete-collection.zip \
@@ -162,13 +163,13 @@ jobs:
           grep -q "setPointerCapture" _site/game.js
           grep -q "avoid-left" _site/styles.css
           grep -q "v0.6.0 mobile-landscape hotfix" _site/styles.css
-          grep -q "v0.12.1 complete collection" _site/index.html
+          grep -q "v0.12.2 stage1 rage v2" _site/index.html
           grep -q "ca-pub-6414931308880829" _site/index.html
           grep -q "ca-pub-6414931308880829" _site/config.js
           grep -q "drawPlayerVisual" _site/game.js
           grep -q "drawEnemyVisual" _site/game.js
           grep -q "v0.6.5 focus pause hotfix" _site/game.js
-          grep -q "cmh-core-v0.12.1" _site/sw.js
+          grep -q "cmh-core-v0.12.2" _site/sw.js
           grep -q "function platform()" _site/analytics.js
           grep -q "function trafficSource()" _site/analytics.js
           grep -q "traffic_source:trafficSource()" _site/analytics.js
@@ -230,16 +231,21 @@ jobs:
           grep -q "boss_containment_start" _site/game.js
           grep -q "containmentPendingMilestone" _site/game.js
           grep -q "containmentBoost" _site/game.js
+          grep -q "STAGE1_RAGE_V2" _site/game.js
+          grep -q "stage1RageReclaimCells" _site/game.js
+          grep -q "stage1_rage_start" _site/game.js
+          grep -q "stage1_rage_retrap" _site/game.js
+          grep -q "RAGE! · CHAR -" _site/game.js
           grep -q "containment pressure" _site/styles.css
           test -f _site/admin/mask-editor.html
           grep -q "label:'STOP'" _site/game.js
           grep -q "label:'SLOW'" _site/game.js
-          grep -q "VERSION: '0.12.1'" _site/config.js
+          grep -q "VERSION: '0.12.2'" _site/config.js
           grep -q "COLLECTION:" _site/config.js
           grep -q "cmh-collection-request" _site/config.js
           grep -q "endingCollection" _site/game.js
           grep -q "collection.js" _site/index.html
-          grep -q "v0.12.1 complete collection" _site/index.html
+          grep -q "v0.12.2 stage1 rage v2" _site/index.html
           node --check _site/game.js
           node --check _site/analytics.js
           node --check _site/feedback.js

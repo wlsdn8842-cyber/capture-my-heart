@@ -230,7 +230,7 @@ jobs:
           grep -q "bossOpenComponent" _site/game.js
           grep -q "boss_containment_start" _site/game.js
           grep -q "containmentPendingMilestone" _site/game.js
-          grep -q "containmentBoost" _site/game.js
+          grep -q "pressureBoost" _site/game.js
           grep -q "STAGE1_RAGE_V2" _site/game.js
           grep -q "stage1RageReclaimCells" _site/game.js
           grep -q "stage1_rage_start" _site/game.js

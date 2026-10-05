@@ -1,0 +1,33 @@
+# Movement v2 + Fair Random Spawn — BEFORE / AFTER
+
+## BEFORE baseline
+- Version: `v0.13.2 collection 3d access`
+- Commit: `fa3e0273b392b37c8f9f7adaa8c5bfd57d5fe09b`
+- Preserved branch: `baseline/pre-movement-v2-v0.13.2`
+
+### BEFORE behavior
+1. The player could move across any claimed/safe cell, including the interior of already captured territory.
+2. Desktop capture remained logically held until Space key-up. If the player kept holding Space and direction after reconnecting, key repeat could re-arm capture immediately.
+3. Mobile capture lock already turned off on capture completion, but desktop/mobile did not share one explicit post-capture disarm rule.
+4. Boss/minion starting cells used independent random unclaimed-cell picks with player distance, but no explicit enemy-to-enemy separation guarantee.
+
+## AFTER target
+- Version: `v0.14.0 movement v2`
+- Working branch: `movement-v2-fair-random-spawn`
+
+### AFTER behavior
+1. Safe movement is restricted to claimed cells that touch unclaimed territory — the active capture boundary.
+2. Entering unclaimed territory still requires CAPTURE.
+3. Reconnecting a line auto-disarms CAPTURE.
+   - Desktop: Space must be released before capture can re-arm.
+   - Mobile: CAPTURE LOCK automatically switches off.
+4. Boss spawn is randomized inside the map with a minimum player distance.
+5. Minion spawns are randomized and distributed with both player-distance and enemy-separation constraints.
+6. Existing DASH, auto-retract, lives, items, boss skills, stage difficulty, bonus scenes, collection reward, and 3-day collection reopen behavior remain unchanged.
+
+## Rollback rule
+If Movement v2 causes a regression, compare against or restore from:
+`baseline/pre-movement-v2-v0.13.2`
+
+## Verification
+The deployment workflow runs `overrides/verify_movement_v2.js` against the built `game.js` to verify boundary movement, capture auto-off, mobile/desktop behavior, and fair spawn separation.

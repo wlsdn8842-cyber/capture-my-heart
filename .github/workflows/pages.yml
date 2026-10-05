@@ -202,11 +202,10 @@ jobs:
           grep -q "boss_containment_start" _site/game.js
           grep -q "containmentPendingMilestone" _site/game.js
           grep -q "pressureBoost" _site/game.js
-          grep -q "STAGE1_RAGE_V2" _site/game.js
           grep -q "stage1RageReclaimCells" _site/game.js
-          grep -q "stage1_rage_start" _site/game.js
-          grep -q "stage1_rage_retrap" _site/game.js
-          grep -q "RAGE! · CHAR -" _site/game.js
+          grep -q "boss_rage_start" _site/game.js
+          grep -q "boss_rage_retrap" _site/game.js
+          grep -q "RAGE! · " _site/game.js
           grep -q "containment pressure" _site/styles.css
           test -f _site/admin/mask-editor.html
           grep -q "label:'STOP'" _site/game.js

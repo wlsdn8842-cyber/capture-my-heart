@@ -49,13 +49,12 @@ jobs:
           cp overrides/privacy.html _site/privacy.html
           cp overrides/sw.js _site/sw.js
 
-          # 90%+ bonus scene assets. Stage 1-10 are required as one atomic set.
+          # 90%+ bonus scene assets. Stage 1-10 ship as one atomic archive.
+          test -f overrides/assets/service_scenes_stage1-10.zip
           mkdir -p _site/assets/bonus
+          unzip -q -o overrides/assets/service_scenes_stage1-10.zip -d _site/assets/bonus
           for n in $(seq -w 1 10); do
-            src="overrides/assets/stage${n}_service.webm"
-            dst="_site/assets/bonus/stage${n}_service.webm"
-            test -f "$src"
-            cp "$src" "$dst"
+            test -f "_site/assets/bonus/stage${n}_service.webm"
           done
 
           # Private owner dashboard UI (data remains behind the Edge Function key).

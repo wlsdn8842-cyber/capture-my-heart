@@ -12,17 +12,17 @@ def rep(path, old, new, label):
 
 rep(Path('index.html'),
     '<div class="version">v0.12.2 stage1 rage v2</div>',
-    '<div class="version">v0.12.3 service scenes 1-10</div>',
+    '<div class="version">v0.12.4 service scenes HQ</div>',
     'version label')
 
 rep(Path('config.js'),
     "VERSION: '0.12.2'",
-    "VERSION: '0.12.3'",
+    "VERSION: '0.12.4'",
     'config version')
 
 rep(Path('sw.js'),
     "cmh-core-v0.12.2",
-    "cmh-core-v0.12.3",
+    "cmh-core-v0.12.4",
     'service worker cache version')
 
-print('v0.12.3 service scenes 1-10 applied')
+print('v0.12.4 service scenes HQ applied')

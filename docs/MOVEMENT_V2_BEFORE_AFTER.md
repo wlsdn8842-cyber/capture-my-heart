@@ -47,3 +47,21 @@ The deployment workflow runs `overrides/verify_movement_v2.js` against the built
 - Claimed interior cells with no adjacent unclaimed cell remain blocked.
 - Orthogonal boundary movement remains unchanged.
 - Claimed corner cells that touch unclaimed territory diagonally are now traversable.
+
+
+## Safe boundary transfer hotfix
+
+### BEFORE safe transfer
+- Version: `v0.14.1 corner traversal`
+- Commit: `05cfadd048f78cbdb8e9259b1d9b19fbf74c9c08`
+- Preserved branch: `baseline/pre-safe-transfer-v0.14.1`
+- Boundary-only movement could strand the player on one boundary loop when another playable boundary was separated by already-claimed safe territory.
+
+### AFTER safe transfer
+- Version: `v0.14.2 safe boundary transfer`
+- Normal movement still follows the active boundary.
+- If another boundary exists straight ahead and every cell between is already CLAIMED, the player may cross that safe corridor in a straight line.
+- While crossing, perpendicular turns are blocked; the player may continue forward or reverse back to the origin boundary.
+- CAPTURE does not start inside the transfer corridor.
+- If no boundary exists ahead, claimed interior remains blocked.
+- Existing Movement v2 corner traversal and Fair Random Spawn remain unchanged.

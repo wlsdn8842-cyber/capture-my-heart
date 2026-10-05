@@ -49,12 +49,13 @@ jobs:
           cp overrides/privacy.html _site/privacy.html
           cp overrides/sw.js _site/sw.js
 
-          # 90%+ bonus scene assets. Stage 1-10 ship as one atomic archive.
-          test -f overrides/assets/service_scenes_stage1-10.zip
+          # 90%+ bonus scene assets. Keep full-resolution 30fps MP4 media per stage.
           mkdir -p _site/assets/bonus
-          unzip -q -o overrides/assets/service_scenes_stage1-10.zip -d _site/assets/bonus
           for n in $(seq -w 1 10); do
-            test -f "_site/assets/bonus/stage${n}_service.webm"
+            src="overrides/assets/stage${n}_service.mp4"
+            dst="_site/assets/bonus/stage${n}_service.mp4"
+            test -f "$src"
+            cp "$src" "$dst"
           done
 
           # Private owner dashboard UI (data remains behind the Edge Function key).
@@ -114,8 +115,8 @@ jobs:
           grep -q "analytics.js" _site/index.html
           grep -q "cmh_admin_dashboard" _site/admin/admin.js
           for n in $(seq -w 1 10); do
-            test -f "_site/assets/bonus/stage${n}_service.webm"
-            grep -q "stage${n}_service.webm" _site/game.js
+            test -f "_site/assets/bonus/stage${n}_service.mp4"
+            grep -q "stage${n}_service.mp4" _site/game.js
           done
           grep -q "bonus_scene_view" _site/game.js
           grep -q "bonusToggleBtn" _site/game.js
@@ -126,13 +127,13 @@ jobs:
           grep -q "setPointerCapture" _site/game.js
           grep -q "avoid-left" _site/styles.css
           grep -q "v0.6.0 mobile-landscape hotfix" _site/styles.css
-          grep -q "v0.12.3 service scenes 1-10" _site/index.html
+          grep -q "v0.12.4 service scenes HQ" _site/index.html
           grep -q "ca-pub-6414931308880829" _site/index.html
           grep -q "ca-pub-6414931308880829" _site/config.js
           grep -q "drawPlayerVisual" _site/game.js
           grep -q "drawEnemyVisual" _site/game.js
           grep -q "v0.6.5 focus pause hotfix" _site/game.js
-          grep -q "cmh-core-v0.12.3" _site/sw.js
+          grep -q "cmh-core-v0.12.4" _site/sw.js
           grep -q "function platform()" _site/analytics.js
           grep -q "function trafficSource()" _site/analytics.js
           grep -q "traffic_source:trafficSource()" _site/analytics.js
@@ -203,12 +204,12 @@ jobs:
           test -f _site/admin/mask-editor.html
           grep -q "label:'STOP'" _site/game.js
           grep -q "label:'SLOW'" _site/game.js
-          grep -q "VERSION: '0.12.3'" _site/config.js
+          grep -q "VERSION: '0.12.4'" _site/config.js
           grep -q "COLLECTION:" _site/config.js
           grep -q "cmh-collection-request" _site/config.js
           grep -q "endingCollection" _site/game.js
           grep -q "collection.js" _site/index.html
-          grep -q "v0.12.3 service scenes 1-10" _site/index.html
+          grep -q "v0.12.4 service scenes HQ" _site/index.html
           node --check _site/game.js
           node --check _site/analytics.js
           node --check _site/feedback.js
@@ -237,7 +238,7 @@ jobs:
           test -f _itch/index.html
           test -f _itch/game.js
           for n in $(seq -w 1 10); do
-            test -f "_itch/assets/bonus/stage${n}_service.webm"
+            test -f "_itch/assets/bonus/stage${n}_service.mp4"
           done
           if [ -d _itch/admin ]; then
             echo "admin directory must not be included in itch build" >&2

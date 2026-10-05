@@ -65,3 +65,22 @@ The deployment workflow runs `overrides/verify_movement_v2.js` against the built
 - CAPTURE does not start inside the transfer corridor.
 - If no boundary exists ahead, claimed interior remains blocked.
 - Existing Movement v2 corner traversal and Fair Random Spawn remain unchanged.
+
+
+## Routed safe path transfer hotfix
+
+### BEFORE routed path
+- Version: `v0.14.2 safe boundary transfer`
+- Commit: `ba200f851c32868b22240ad8cb4e3225a03a3c2d`
+- Preserved branch: `baseline/pre-safe-path-v0.14.2`
+- Transfer only worked when another boundary existed on the same straight row/column.
+- A boss relocation or asymmetric capture shape could leave the next usable boundary diagonal or around a bend, preventing transfer.
+
+### AFTER routed path
+- Version: `v0.14.3 safe path transfer`
+- When the player pushes into already-claimed interior from a boundary, the game searches the CLAIMED area with BFS for the nearest different boundary.
+- The route can turn through the claimed safe area; it no longer requires row/column alignment.
+- Once armed, transfer automatically follows the route until the target boundary is reached.
+- The remaining route is rendered as a glowing gold dashed line (`#ffd54a`) with a gold endpoint ring so it is visually distinct from the pink CAPTURE trail and cyan safe boundary.
+- If a boss pattern changes the route while transferring, the game attempts a safe reroute and otherwise returns the player to the stored safe origin.
+- Existing Movement v2 boundary following, corner traversal, Fair Random Spawn, and capture auto-off remain unchanged.

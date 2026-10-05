@@ -31,3 +31,19 @@ If Movement v2 causes a regression, compare against or restore from:
 
 ## Verification
 The deployment workflow runs `overrides/verify_movement_v2.js` against the built `game.js` to verify boundary movement, capture auto-off, mobile/desktop behavior, and fair spawn separation.
+
+
+## Corner traversal hotfix
+
+### BEFORE corner fix
+- Version: `v0.14.0 movement v2`
+- Commit: `7416286428e6202df01808e92e8231f77f70ee9f`
+- Preserved branch: `baseline/pre-corner-fix-v0.14.0`
+- Boundary detection used only the four orthogonal neighbors, so some 90-degree/concave corners could become non-traversable.
+
+### AFTER corner fix
+- Version: `v0.14.1 corner traversal`
+- Boundary detection checks all eight neighboring cells.
+- Claimed interior cells with no adjacent unclaimed cell remain blocked.
+- Orthogonal boundary movement remains unchanged.
+- Claimed corner cells that touch unclaimed territory diagonally are now traversable.

@@ -90,10 +90,6 @@ jobs:
           python overrides/collection_reliability_hotfix_patch.py _site
           python overrides/collection_reopen_3d_patch.py _site
           python overrides/mobile_rotation_recovery_patch.py _site
-          python overrides/movement_v2_patch.py _site
-          python overrides/movement_v2_corner_fix_patch.py _site
-          python overrides/movement_v2_safe_transfer_patch.py _site
-          python overrides/movement_v2_safe_path_transfer_patch.py _site
 
           # Build the all-clear collection archive from the deployed stage art.
           zip -q -j _site/assets/cmh-complete-collection.zip \
@@ -135,13 +131,13 @@ jobs:
           grep -q "setPointerCapture" _site/game.js
           grep -q "avoid-left" _site/styles.css
           grep -q "v0.6.0 mobile-landscape hotfix" _site/styles.css
-          grep -q "v0.14.3 safe path transfer" _site/index.html
+          grep -q "v0.13.3 mobile rotation recovery" _site/index.html
           grep -q "ca-pub-6414931308880829" _site/index.html
           grep -q "ca-pub-6414931308880829" _site/config.js
           grep -q "drawPlayerVisual" _site/game.js
           grep -q "drawEnemyVisual" _site/game.js
           grep -q "v0.6.5 focus pause hotfix" _site/game.js
-          grep -q "cmh-core-v0.14.3" _site/sw.js
+          grep -q "cmh-core-v0.13.3" _site/sw.js
           grep -q "function platform()" _site/analytics.js
           grep -q "function trafficSource()" _site/analytics.js
           grep -q "traffic_source:trafficSource()" _site/analytics.js
@@ -217,7 +213,7 @@ jobs:
           test -f _site/admin/mask-editor.html
           grep -q "label:'STOP'" _site/game.js
           grep -q "label:'SLOW'" _site/game.js
-          grep -q "VERSION: '0.14.3'" _site/config.js
+          grep -q "VERSION: '0.13.3'" _site/config.js
           grep -q "COLLECTION:" _site/config.js
           grep -q "cmh-collection-request" _site/config.js
           grep -q "endingCollection" _site/game.js
@@ -231,21 +227,9 @@ jobs:
           grep -q "mobileRotationRecover" _site/game.js
           grep -q "screen.orientation?.addEventListener('change'" _site/game.js
           grep -q "v0.13.3 mobile rotation recovery" _site/styles.css
-          grep -q "isSafeBoundaryCell" _site/game.js
-          grep -q "fairRandomSpawnCell" _site/game.js
-          grep -q "capture_auto_off" _site/game.js
-          grep -q "fair_spawn_layout" _site/game.js
-          node overrides/verify_movement_v2.js _site/game.js
-          node overrides/verify_movement_v2_corner_fix.js _site/game.js
-          grep -q "findSafeBoundaryPath" _site/game.js
-          grep -q "safe_path_transfer_start" _site/game.js
-          grep -q "safe_path_transfer_end" _site/game.js
-          grep -q "drawSafeTransitPath" _site/game.js
-          grep -q "#ffd54a" _site/game.js
-          node overrides/verify_movement_v2_safe_path_transfer.js _site/game.js
           grep -q "server_error" _site/collection.js
           grep -q "서버 처리 중 문제가 발생했습니다" _site/collection.js
-          grep -q "v0.14.3 safe path transfer" _site/index.html
+          grep -q "v0.13.3 mobile rotation recovery" _site/index.html
           node --check _site/game.js
           node --check _site/analytics.js
           node --check _site/feedback.js

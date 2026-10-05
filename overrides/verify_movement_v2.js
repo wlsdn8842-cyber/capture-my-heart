@@ -33,6 +33,8 @@ function testMovePlayer(){
     inGrid:(x,y)=>x>=0&&y>=0&&x<GW&&y<GH,
     getCell:(x,y)=>grid[y*GW+x],setCell:(x,y,v)=>grid[y*GW+x]=v,
     direction:()=>dir,dirVec:d=>d==='right'?[1,0]:d==='left'?[-1,0]:d==='up'?[0,-1]:[0,1],
+    stepSafeTransit:()=>false,
+    clearSafeTransit:p=>{p.safeTransitPath=[];p.safeTransitOrigin=null;p.safeTransitTarget=null},
     audio:{beep:()=>{}},failLife:()=>{failCalls++},captureRegion:()=>{captureCalls++}
   };
   vm.createContext(ctx);vm.runInContext(code,ctx);

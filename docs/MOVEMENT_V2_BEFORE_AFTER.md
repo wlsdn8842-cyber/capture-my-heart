@@ -84,3 +84,20 @@ The deployment workflow runs `overrides/verify_movement_v2.js` against the built
 - The remaining route is rendered as a glowing gold dashed line (`#ffd54a`) with a gold endpoint ring so it is visually distinct from the pink CAPTURE trail and cyan safe boundary.
 - If a boss pattern changes the route while transferring, the game attempts a safe reroute and otherwise returns the player to the stored safe origin.
 - Existing Movement v2 boundary following, corner traversal, Fair Random Spawn, and capture auto-off remain unchanged.
+
+
+## Nearest box rescue hotfix
+
+### BEFORE nearest-box rescue
+- Version: `v0.14.3 safe path transfer`
+- Commit: `da89a39a513cb1b093121ef3cfeea24da58870f4`
+- Preserved branch: `baseline/pre-nearest-box-rescue-v0.14.3`
+- Safe transfer still depended on the player pushing into a routeable claimed interior direction.
+- Boss breakouts/territory changes could leave the player effectively stranded on an isolated loop or even inside claimed territory.
+
+### AFTER nearest-box rescue
+- Version: `v0.14.4 nearest box rescue`
+- If a movement attempt is blocked, the game falls back to the nearest different boundary loop instead of requiring the player to guess the correct direction.
+- If the player is left inside claimed territory after a boss/territory change, the next movement attempt automatically routes to the nearest valid boundary.
+- The rescue uses the same glowing gold route introduced in v0.14.3, so the destination and path remain visible.
+- Boundary component matching now uses 8-neighbor connectivity so diagonal corners that belong to the same box are not mistaken for a different target box.

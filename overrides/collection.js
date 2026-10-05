@@ -64,6 +64,7 @@
       const data=await res.json().catch(()=>({}));
       if(!res.ok || !data?.ok){
         if(res.status===429) throw new Error('rate_limited');
+        if(res.status>=500) throw new Error('server_error');
         throw new Error(data?.code||'request_failed');
       }
 
@@ -88,7 +89,9 @@
       const code=String(err?.message||'');
       status.textContent=code==='rate_limited'
         ? '짧은 시간에 요청이 너무 많습니다. 잠시 후 다시 시도해 주세요.'
-        : '요청을 저장하지 못했습니다. 네트워크 상태를 확인하고 다시 시도해 주세요.';
+        : code==='server_error'
+          ? '서버 처리 중 문제가 발생했습니다. 잠시 후 다시 시도해 주세요.'
+          : '요청을 저장하지 못했습니다. 네트워크 상태를 확인하고 다시 시도해 주세요.';
       track('collection_request_error',{code:code.slice(0,60)});
     }
   }

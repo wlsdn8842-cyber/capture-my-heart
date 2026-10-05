@@ -86,6 +86,7 @@ jobs:
           python overrides/collection_reward_patch.py _site
           python overrides/stage1_rage_v2_patch.py _site
           python overrides/service_scene_v2_patch.py _site
+          python overrides/difficulty_v2_patch.py _site
 
           # Build the all-clear collection archive from the deployed stage art.
           zip -q -j _site/assets/cmh-complete-collection.zip \
@@ -127,13 +128,13 @@ jobs:
           grep -q "setPointerCapture" _site/game.js
           grep -q "avoid-left" _site/styles.css
           grep -q "v0.6.0 mobile-landscape hotfix" _site/styles.css
-          grep -q "v0.12.4 service scenes HQ" _site/index.html
+          grep -q "v0.13.0 difficulty v2" _site/index.html
           grep -q "ca-pub-6414931308880829" _site/index.html
           grep -q "ca-pub-6414931308880829" _site/config.js
           grep -q "drawPlayerVisual" _site/game.js
           grep -q "drawEnemyVisual" _site/game.js
           grep -q "v0.6.5 focus pause hotfix" _site/game.js
-          grep -q "cmh-core-v0.12.4" _site/sw.js
+          grep -q "cmh-core-v0.13.0" _site/sw.js
           grep -q "function platform()" _site/analytics.js
           grep -q "function trafficSource()" _site/analytics.js
           grep -q "traffic_source:trafficSource()" _site/analytics.js
@@ -165,6 +166,12 @@ jobs:
           grep -q "ending_auto_title" _site/game.js
           grep -q "gallery_art_open" _site/game.js
           grep -q "BALANCE_V1" _site/game.js
+          grep -q "speed:112, shots:2600, minions:1, chase:0.10" _site/game.js
+          grep -q "speed:180, shots:1000, minions:4, chase:0.30" _site/game.js
+          grep -q "BOSS_RAGE_V3" _site/game.js
+          grep -q "bossDifficultyV2Profile" _site/game.js
+          grep -q "boss_rage_start" _site/game.js
+          grep -q "multiShot:.45" _site/game.js
           grep -q "balanceV1Profile" _site/game.js
           grep -q "shotClock" _site/game.js
           grep -q "SETTINGS에서 BGM/SFX" _site/game.js
@@ -204,12 +211,12 @@ jobs:
           test -f _site/admin/mask-editor.html
           grep -q "label:'STOP'" _site/game.js
           grep -q "label:'SLOW'" _site/game.js
-          grep -q "VERSION: '0.12.4'" _site/config.js
+          grep -q "VERSION: '0.13.0'" _site/config.js
           grep -q "COLLECTION:" _site/config.js
           grep -q "cmh-collection-request" _site/config.js
           grep -q "endingCollection" _site/game.js
           grep -q "collection.js" _site/index.html
-          grep -q "v0.12.4 service scenes HQ" _site/index.html
+          grep -q "v0.13.0 difficulty v2" _site/index.html
           node --check _site/game.js
           node --check _site/analytics.js
           node --check _site/feedback.js

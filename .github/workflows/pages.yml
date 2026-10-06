@@ -179,7 +179,7 @@ jobs:
           grep -q "multiShot:.45" _site/game.js
           grep -q "balanceV1Profile" _site/game.js
           grep -q "shotClock" _site/game.js
-          grep -q "SETTINGS에서 BGM/SFX" _site/game.js
+          grep -q "옵션에서 BGM/SFX" _site/game.js
           grep -q "JUICE_V1" _site/game.js
           grep -q "juiceItemPickup" _site/game.js
           grep -q "juiceCaptureFX" _site/game.js

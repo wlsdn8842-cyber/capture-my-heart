@@ -16,11 +16,11 @@ head_bits=[]
 if 'name="description"' not in s:
     head_bits.append('<meta name="description" content="Capture My Heart!는 선을 그어 영역을 점령하고 보스 패턴을 피하는 10스테이지 브라우저 아케이드 게임입니다.">')
 if 'rel="canonical"' not in s:
-    head_bits.append('<link rel="canonical" href="https://wlsdn8842-cyber.github.io/">')
+    head_bits.append('<link rel="canonical" href="https://wlsdn8842-cyber.github.io/capture-my-heart/">')
 if 'property="og:title"' not in s:
-    head_bits.append('<meta property="og:title" content="Capture My Heart!"><meta property="og:description" content="10개 스테이지를 공략하는 브라우저 기반 영역 점령 아케이드 게임."><meta property="og:type" content="website"><meta property="og:url" content="https://wlsdn8842-cyber.github.io/">')
+    head_bits.append('<meta property="og:title" content="Capture My Heart!"><meta property="og:description" content="10개 스테이지를 공략하는 브라우저 기반 영역 점령 아케이드 게임."><meta property="og:type" content="website"><meta property="og:url" content="https://wlsdn8842-cyber.github.io/capture-my-heart/">')
 if '"@type":"VideoGame"' not in s:
-    head_bits.append('<script type="application/ld+json">{"@context":"https://schema.org","@type":"VideoGame","name":"Capture My Heart!","url":"https://wlsdn8842-cyber.github.io/","gamePlatform":["Web browser","Mobile browser"],"genre":["Arcade","Territory capture"],"description":"선을 그어 영역을 점령하고 보스 패턴을 피하며 10개 스테이지를 진행하는 브라우저 아케이드 게임.","inLanguage":"ko"}</script>')
+    head_bits.append('<script type="application/ld+json">{"@context":"https://schema.org","@type":"VideoGame","name":"Capture My Heart!","url":"https://wlsdn8842-cyber.github.io/capture-my-heart/","gamePlatform":["Web browser","Mobile browser"],"genre":["Arcade","Territory capture"],"description":"선을 그어 영역을 점령하고 보스 패턴을 피하며 10개 스테이지를 진행하는 브라우저 아케이드 게임.","inLanguage":"ko"}</script>')
 if head_bits:
     if '</head>' not in s: raise SystemExit('adsense content hub patch failed: head marker')
     s=s.replace('</head>',''.join(head_bits)+'</head>',1)

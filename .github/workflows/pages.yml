@@ -47,6 +47,15 @@ jobs:
           cp overrides/analytics.js _site/analytics.js
           cp overrides/character_masks.js _site/character_masks.js
           cp overrides/privacy.html _site/privacy.html
+          cp overrides/site-info.css _site/site-info.css
+          cp overrides/info.html _site/info.html
+          cp overrides/guide.html _site/guide.html
+          cp overrides/updates.html _site/updates.html
+          cp overrides/faq.html _site/faq.html
+          cp overrides/contact.html _site/contact.html
+          cp overrides/robots.txt _site/robots.txt
+          cp overrides/sitemap.xml _site/sitemap.xml
+          cp overrides/ads.txt _site/ads.txt
           cp overrides/sw.js _site/sw.js
 
           # 90%+ bonus scene assets. Keep full-resolution 30fps MP4 media per stage.
@@ -92,6 +101,7 @@ jobs:
           python overrides/mobile_rotation_recovery_patch.py _site
           python overrides/hud_audio_controls_patch.py _site
           python overrides/key_mapping_patch.py _site
+          python overrides/adsense_content_hub_patch.py _site
 
           # Build the all-clear collection archive from the deployed stage art.
           zip -q -j _site/assets/cmh-complete-collection.zip \
@@ -133,13 +143,13 @@ jobs:
           grep -q "setPointerCapture" _site/game.js
           grep -q "avoid-left" _site/styles.css
           grep -q "v0.6.0 mobile-landscape hotfix" _site/styles.css
-          grep -q "v0.13.5 key mapping" _site/index.html
+          grep -q "v0.13.6 content hub" _site/index.html
           grep -q "ca-pub-6414931308880829" _site/index.html
           grep -q "ca-pub-6414931308880829" _site/config.js
           grep -q "drawPlayerVisual" _site/game.js
           grep -q "drawEnemyVisual" _site/game.js
           grep -q "v0.6.5 focus pause hotfix" _site/game.js
-          grep -q "cmh-core-v0.13.5" _site/sw.js
+          grep -q "cmh-core-v0.13.6" _site/sw.js
           grep -q "function platform()" _site/analytics.js
           grep -q "function trafficSource()" _site/analytics.js
           grep -q "traffic_source:trafficSource()" _site/analytics.js
@@ -215,7 +225,7 @@ jobs:
           test -f _site/admin/mask-editor.html
           grep -q "label:'STOP'" _site/game.js
           grep -q "label:'SLOW'" _site/game.js
-          grep -q "VERSION: '0.13.5'" _site/config.js
+          grep -q "VERSION: '0.13.6'" _site/config.js
           grep -q "COLLECTION:" _site/config.js
           grep -q "cmh-collection-request" _site/config.js
           grep -q "endingCollection" _site/game.js
@@ -242,9 +252,27 @@ jobs:
           grep -q "keyBindingAction(e.code)" _site/game.js
           grep -q "v0.13.5 key mapping" _site/styles.css
           node overrides/verify_key_mapping.js _site/game.js
+          test -f _site/info.html
+          test -f _site/guide.html
+          test -f _site/updates.html
+          test -f _site/faq.html
+          test -f _site/contact.html
+          test -f _site/site-info.css
+          test -f _site/robots.txt
+          test -f _site/sitemap.xml
+          test -f _site/ads.txt
+          grep -q "ⓘ 게임 정보" _site/index.html
+          grep -q "VideoGame" _site/index.html
+          grep -q "무엇을 하는 게임인가요" _site/info.html
+          grep -q "영역을 점령하는 방법" _site/guide.html
+          grep -q "Movement v2 실험 · 롤백" _site/updates.html
+          grep -q "Stage 10 완주 후 컬렉션 받기를 놓쳤어요" _site/faq.html
+          grep -q "버그를 빠르게 재현하려면" _site/contact.html
+          grep -q "Sitemap: https://wlsdn8842-cyber.github.io/sitemap.xml" _site/robots.txt
+          grep -q "pub-6414931308880829" _site/ads.txt
           grep -q "server_error" _site/collection.js
           grep -q "서버 처리 중 문제가 발생했습니다" _site/collection.js
-          grep -q "v0.13.5 key mapping" _site/index.html
+          grep -q "v0.13.6 content hub" _site/index.html
           node --check _site/game.js
           node --check _site/analytics.js
           node --check _site/feedback.js
@@ -269,6 +297,7 @@ jobs:
           rm -rf _itch
           mkdir -p _itch
           cp _site/index.html _site/styles.css _site/config.js _site/ads.js _site/analytics.js _site/feedback.js _site/collection.js _site/collection.html _site/character_masks.js _site/game.js _site/manifest.webmanifest _site/privacy.html _site/sw.js _itch/
+          cp _site/site-info.css _site/info.html _site/guide.html _site/updates.html _site/faq.html _site/contact.html _itch/
           cp -a _site/assets _itch/assets
           test -f _itch/index.html
           test -f _itch/game.js

@@ -304,6 +304,7 @@ await run('pc_keymap_retract',async()=>{
   await page.locator('#settingsClose').click();
   await installSpies(page);
   await startNewGame(page);
+  await sleep(450);await flush(page);
   const startEv=await waitStored(currentScenario,'stage1_attempt_start');
   await page.keyboard.down('KeyF');
   await holdKey(page,'ArrowDown',230);
@@ -347,6 +348,7 @@ await run('guard_pause_visibility_timeout',async()=>{
   await gotoHome(page,{tutorialComplete:true});
   await installSpies(page);
   await startNewGame(page);
+  await sleep(450);await flush(page);
   const startEv=await waitStored(currentScenario,'stage1_attempt_start');
   await sleep(3000);
   await page.locator('#pauseBtn').click();
@@ -385,6 +387,7 @@ await run('continue_load_attempt_linking',async()=>{
   await gotoHome(page,{tutorialComplete:true});
   await installSpies(page);
   await startNewGame(page);
+  await sleep(450);await flush(page);
   const a1=await waitStored(currentScenario,'stage1_attempt_start');
   assert(a1.params.first_instrumented_attempt===true,'attempt 1 should be first_instrumented_attempt');
   await page.evaluate(()=>{failLife('BROWSER_TEST_A');failLife('BROWSER_TEST_B');failLife('BROWSER_TEST_C')});

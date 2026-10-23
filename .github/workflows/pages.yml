@@ -106,6 +106,7 @@ jobs:
           python overrides/adsense_content_hub_patch.py _site
           python overrides/bilingual_home_patch.py _site
           python overrides/bilingual_content_nav_patch.py _site
+          python overrides/stage1_retention_patch.py _site
 
           # Build the all-clear collection archive from the deployed stage art.
           zip -q -j _site/assets/cmh-complete-collection.zip \
@@ -147,13 +148,13 @@ jobs:
           grep -q "setPointerCapture" _site/game.js
           grep -q "avoid-left" _site/styles.css
           grep -q "v0.6.0 mobile-landscape hotfix" _site/styles.css
-          grep -q "v0.13.7 bilingual" _site/index.html
+          grep -q "v0.13.8-dev stage1 retention" _site/index.html
           grep -q "ca-pub-6414931308880829" _site/index.html
           grep -q "ca-pub-6414931308880829" _site/config.js
           grep -q "drawPlayerVisual" _site/game.js
           grep -q "drawEnemyVisual" _site/game.js
           grep -q "v0.6.5 focus pause hotfix" _site/game.js
-          grep -q "cmh-core-v0.13.7" _site/sw.js
+          grep -q "cmh-core-v0.13.8-dev" _site/sw.js
           grep -q "function platform()" _site/analytics.js
           grep -q "function trafficSource()" _site/analytics.js
           grep -q "traffic_source:trafficSource()" _site/analytics.js
@@ -229,7 +230,7 @@ jobs:
           test -f _site/admin/mask-editor.html
           grep -q "label:'STOP'" _site/game.js
           grep -q "label:'SLOW'" _site/game.js
-          grep -q "VERSION: '0.13.7'" _site/config.js
+          grep -q "VERSION: '0.13.8-dev'" _site/config.js
           grep -q "COLLECTION:" _site/config.js
           grep -q "cmh-collection-request" _site/config.js
           grep -q "endingCollection" _site/game.js
@@ -289,9 +290,17 @@ jobs:
           grep -q 'hreflang="ko"' _site/en/info.html
           grep -q "Frequently Asked Questions" _site/en/faq.html
           node --check _site/site-lang.js
+          grep -q "STAGE1_ENTRY_GUARD={enabled:true,maxMs:15000" _site/game.js
+          grep -q "CLEAR_BANK_V1={enabled:false" _site/game.js
+          grep -q "stage1_attempt_start" _site/game.js
+          grep -q "stage1_first_capture" _site/game.js
+          grep -q "stage1_first_death" _site/game.js
+          grep -q "stage1_clear" _site/game.js
+          grep -q "stage2_entry" _site/game.js
+          node overrides/verify_stage1_retention.js _site/game.js
           grep -q "server_error" _site/collection.js
           grep -q "서버 처리 중 문제가 발생했습니다" _site/collection.js
-          grep -q "v0.13.7 bilingual" _site/index.html
+          grep -q "v0.13.8-dev stage1 retention" _site/index.html
           node --check _site/game.js
           node --check _site/analytics.js
           node --check _site/feedback.js

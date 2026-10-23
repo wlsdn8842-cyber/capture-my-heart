@@ -33,7 +33,7 @@ function rewriteTestConfig(){
 
 rewriteTestConfig();
 fs.writeFileSync(path.join(artifacts,'mock-events.jsonl'),'');
-let currentScenario='boot';
+
 
 const server=http.createServer((req,res)=>{
   const u=new URL(req.url,ORIGIN);

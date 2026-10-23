@@ -21,7 +21,7 @@ try{
   assert(src.includes("suppressProjectiles:true"),'Stage 1 projectile suppression missing');
   assert(src.includes("const CLEAR_BANK_V1={enabled:false"),'clear bank must remain disabled by default');
 
-  for(const e of ['stage1_attempt_start','stage1_first_capture','stage1_first_death','stage1_clear','stage2_entry']){
+  for(const e of ['stage1_attempt_start','stage1_first_capture','stage1_first_death','stage1_clear','stage1_attempt_end','stage2_entry']){
     assert(src.includes(`track('${e}'`),`${e} instrumentation missing`);
   }
   assert(src.includes("attempt_id:state.stageAttemptId"),'attempt correlation id missing');
@@ -49,8 +49,8 @@ try{
   const ctx={
     state:{
       stage:1,area:4.5,characterArea:3.2,stageAttemptFirstCaptureTracked:false,
-      stage1EntryGuardUntil:16000,stage1GuardEndTracked:false,
-      stageAttemptStartedAt:500,stageAttemptId:'attempt_1',stage1AttemptNo:1,
+      stage1EntryGuardUntil:16000,stage1GuardEndTracked:false,stage1GuardPausedAt:0,paused:false,
+      stageAttemptStartedAt:500,stageAttemptId:'attempt_1',stage1AttemptNo:1,stageAttemptEnded:false,stageAttemptCleared:false,
       stageAttemptDeaths:0,stageAttemptFirstDeathTracked:false,
       enemies:[{isBoss:true,shotTimer:100}]
     },
@@ -58,13 +58,16 @@ try{
     tutorial:{active:false},
     now:()=>clock,
     track:(n,p)=>events.push([n,p]),
-    mobileUXActive:()=>false
+    mobileUXActive:()=>false,
+    document:{visibilityState:'visible'}
   };
   vm.createContext(ctx);
   vm.runInContext([
     getFn('stageAttemptElapsedMs'),
     getFn('stageAttemptMeta'),
     getFn('stage1EndEntryGuard'),
+    getFn('stage1SuspendEntryGuard'),
+    getFn('stage1ResumeEntryGuard'),
     getFn('stage1EntryGuardActive'),
     getFn('recordStage1FirstCapture')
   ].join('\n'),ctx);
@@ -83,6 +86,24 @@ try{
   ctx.state.stage1EntryGuardUntil=16000;
   assert(ctx.stage1EntryGuardActive()===false,'guard must expire after the 15s hard cap');
   assert(events.some(x=>x[0]==='stage1_guard_end'&&x[1].reason==='timeout'),'timeout guard event missing');
+
+  // Pause/background time must not consume the active 15s guard.
+  events.length=0;clock=1000;
+  ctx.state.stageAttemptFirstCaptureTracked=false;
+  ctx.state.stage1GuardEndTracked=false;
+  ctx.state.stage1EntryGuardUntil=16000;
+  ctx.state.stage1GuardPausedAt=0;
+  ctx.state.paused=false;
+  assert(ctx.stage1EntryGuardActive()===true,'guard should start active for pause test');
+  ctx.stage1SuspendEntryGuard('pause');
+  assert(ctx.state.stage1GuardPausedAt===1000,'guard pause timestamp missing');
+  clock=13000;ctx.state.paused=false;
+  assert(ctx.stage1EntryGuardActive()===true,'paused wall time incorrectly consumed the guard');
+  assert(ctx.state.stage1EntryGuardUntil===28000,'guard deadline was not shifted by paused duration');
+  clock=27999;
+  assert(ctx.stage1EntryGuardActive()===true,'guard ended before 15s of active play');
+  clock=28001;
+  assert(ctx.stage1EntryGuardActive()===false,'guard did not end after 15s of active play');
 
   // Clear bank is prepared but OFF. It must not affect current progression.
   const storage=new Map();

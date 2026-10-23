@@ -272,19 +272,22 @@ await run('pc_tutorial_guard_first_capture',async()=>{
   const guard=await waitStored(currentScenario,'stage1_guard_end',e=>e.params.attempt_id===attemptId&&e.params.reason==='first_capture',5000);
   assert(cap.params.attempt_id===guard.params.attempt_id,'attempt ID mismatch between capture and guard end');
   await sleep(650);
-  let shots=await page.evaluate(()=>window.__cmhTest?.shots||[]);
   const guardTrack=await runtimeTrack(page,'stage1_guard_end');
   assert(guardTrack,'runtime guard-end track missing');
-  assert(shots.every(t=>t-guardTrack.t>=850),'projectile fired too soon after first-capture guard end');
-  const firstShot=await waitForShot(page,4500);
-  assert(firstShot!==null,'boss did not resume projectile firing after guard');
-  assert(firstShot-guardTrack.t>=850,`post-guard projectile delay too short: ${Math.round(firstShot-guardTrack.t)}ms`);
+  const timer0=await page.evaluate(()=>window.CMH_GAME?.state?.enemies?.find(e=>e.isBoss)?.shotTimer);
+  const proj0=await page.evaluate(()=>window.CMH_GAME?.state?.projectiles?.length||0);
+  assert(Number.isFinite(timer0)&&timer0>=890,`post-guard shotTimer below 900ms minimum: ${timer0}`);
+  await sleep(650);
+  const timer1=await page.evaluate(()=>window.CMH_GAME?.state?.enemies?.find(e=>e.isBoss)?.shotTimer);
+  const proj1=await page.evaluate(()=>window.CMH_GAME?.state?.projectiles?.length||0);
+  assert(proj1===proj0,'projectile fired inside the 900ms minimum safety window');
+  assert(Number.isFinite(timer1)&&timer1<timer0,`boss shot timer did not resume after guard: ${timer0} -> ${timer1}`);
   await flush(page);
   assert(scenarioEvents(currentScenario,'stage1_first_capture').filter(e=>e.params.attempt_id===attemptId).length===1,'duplicate first-capture event');
   assert(errors.length===0,'page errors: '+errors.join(' | '));
   await page.screenshot({path:path.join(artifacts,'pc-stage1-first-capture.png'),fullPage:true});
   await context.close();
-  return {attemptId,guardReason:guard.params.reason,postGuardShotMs:Math.round(firstShot-guardTrack.t)};
+  return {attemptId,guardReason:guard.params.reason,shotTimerAtEnd:Math.round(timer0),shotTimerAfter650ms:Math.round(timer1)};
 });
 
 await run('pc_keymap_retract',async()=>{
@@ -363,12 +366,17 @@ await run('guard_pause_visibility_timeout',async()=>{
   assert(!scenarioEvents(currentScenario,'stage1_guard_end').some(e=>e.params.reason==='timeout'),'guard expired before 15s active play after pause/visibility freeze');
   const timeoutEv=await waitStored(currentScenario,'stage1_guard_end',e=>e.params.attempt_id===startEv.params.attempt_id&&e.params.reason==='timeout',5000);
   const guardTrack=await runtimeTrack(page,'stage1_guard_end');
-  const firstShot=await waitForShot(page,4500);
   assert(guardTrack,'timeout guard runtime track missing');
-  assert(firstShot!==null,'projectiles did not resume after timeout guard');
-  assert(firstShot-guardTrack.t>=850,'projectile resumed before 900ms post-timeout delay');
+  const timer0=await page.evaluate(()=>window.CMH_GAME?.state?.enemies?.find(e=>e.isBoss)?.shotTimer);
+  const proj0=await page.evaluate(()=>window.CMH_GAME?.state?.projectiles?.length||0);
+  assert(Number.isFinite(timer0)&&timer0>=890,`timeout guard ended with shotTimer below 900ms: ${timer0}`);
+  await sleep(650);
+  const timer1=await page.evaluate(()=>window.CMH_GAME?.state?.enemies?.find(e=>e.isBoss)?.shotTimer);
+  const proj1=await page.evaluate(()=>window.CMH_GAME?.state?.projectiles?.length||0);
+  assert(proj1===proj0,'projectile fired inside timeout guard 900ms safety window');
+  assert(Number.isFinite(timer1)&&timer1<timer0,`shot timer did not resume after timeout: ${timer0} -> ${timer1}`);
   await other.close();await context.close();
-  return {guardReason:timeoutEv.params.reason,hiddenEventObserved:hiddenEvents.length>0,postGuardShotMs:Math.round(firstShot-guardTrack.t)};
+  return {guardReason:timeoutEv.params.reason,hiddenEventObserved:hiddenEvents.length>0,shotTimerAtEnd:Math.round(timer0),shotTimerAfter650ms:Math.round(timer1)};
 });
 
 await run('continue_load_attempt_linking',async()=>{

@@ -22,8 +22,8 @@ rep(Path('game.js'),
 """  shotAcc:0, continueCredits:1, currentImage:null, stageStartedAt:0,
   pendingStageStartSource:'direct',
   stageAttemptId:'', stageAttemptStartedAt:0, stageAttemptDeaths:0, stageAttemptFirstDeathTracked:false,
-  stageAttemptFirstCaptureTracked:false, stageAttemptCleared:false, stage1AttemptNo:0,
-  stage1EntryGuardUntil:0, stage1GuardEndTracked:false,
+  stageAttemptFirstCaptureTracked:false, stageAttemptCleared:false, stageAttemptEnded:false, stage1AttemptNo:0,
+  stage1EntryGuardUntil:0, stage1GuardEndTracked:false, stage1GuardPausedAt:0,
   unlocked:new Set(), tutorialShown:localStorage.getItem('cmh.tutorial') === '1'
 };""",
 'state telemetry fields')
@@ -68,8 +68,10 @@ function beginStageTelemetry(stage,startSource='direct',fromSave=false){
   state.stageAttemptFirstDeathTracked=false;
   state.stageAttemptFirstCaptureTracked=false;
   state.stageAttemptCleared=false;
+  state.stageAttemptEnded=false;
   state.stage1EntryGuardUntil=0;
   state.stage1GuardEndTracked=false;
+  state.stage1GuardPausedAt=0;
   if(stage===1){
     state.stage1AttemptNo=nextStage1AttemptNo();
     if(STAGE1_ENTRY_GUARD.enabled)state.stage1EntryGuardUntil=now()+STAGE1_ENTRY_GUARD.maxMs;
@@ -102,14 +104,28 @@ function beginStageTelemetry(stage,startSource='direct',fromSave=false){
 }
 function stage1EndEntryGuard(reason='timeout'){
   if(state.stage!==1||state.stage1GuardEndTracked)return;
+  const remaining=Math.max(0,state.stage1EntryGuardUntil-now());
   state.stage1GuardEndTracked=true;
   state.stage1EntryGuardUntil=0;
+  state.stage1GuardPausedAt=0;
   const boss=state.enemies?.find?.(e=>e.isBoss);
   if(boss&&Number.isFinite(boss.shotTimer))boss.shotTimer=Math.max(boss.shotTimer,STAGE1_ENTRY_GUARD.postGuardShotDelayMs);
-  track('stage1_guard_end',{...stageAttemptMeta(),reason});
+  track('stage1_guard_end',{...stageAttemptMeta(),reason,guard_active_ms:Math.max(0,STAGE1_ENTRY_GUARD.maxMs-remaining)});
+}
+function stage1SuspendEntryGuard(reason='pause'){
+  if(state.stage!==1||!STAGE1_ENTRY_GUARD.enabled||state.stage1GuardEndTracked||state.stageAttemptFirstCaptureTracked)return;
+  if(state.stage1GuardPausedAt||now()>=state.stage1EntryGuardUntil)return;
+  state.stage1GuardPausedAt=now();
+}
+function stage1ResumeEntryGuard(){
+  if(!state.stage1GuardPausedAt)return;
+  const pausedFor=Math.max(0,now()-state.stage1GuardPausedAt);
+  state.stage1EntryGuardUntil+=pausedFor;
+  state.stage1GuardPausedAt=0;
 }
 function stage1EntryGuardActive(){
   if(state.stage!==1||!STAGE1_ENTRY_GUARD.enabled||state.stageAttemptFirstCaptureTracked)return false;
+  if(state.stage1GuardPausedAt&&!state.paused&&(typeof document==='undefined'||document.visibilityState!=='hidden'))stage1ResumeEntryGuard();
   if(now()>=state.stage1EntryGuardUntil){
     stage1EndEntryGuard('timeout');
     return false;
@@ -161,6 +177,22 @@ function recordStage1Clear(progress){
   });
   if(CLEAR_BANK_V1.enabled)bankStageClear(progress,prev);
 }
+function recordStage1AttemptEnd(outcome='unknown',extra={}){
+  if(state.stage!==1||!state.stageAttemptId||state.stageAttemptEnded)return false;
+  if(!state.stage1GuardEndTracked&&STAGE1_ENTRY_GUARD.enabled)stage1EndEntryGuard('attempt_end');
+  state.stageAttemptEnded=true;
+  track('stage1_attempt_end',{
+    ...stageAttemptMeta(),
+    outcome,
+    cleared:!!state.stageAttemptCleared,
+    first_capture:!!state.stageAttemptFirstCaptureTracked,
+    area:Number((state.area||0).toFixed(2)),
+    score:state.score,
+    lives:state.lives,
+    ...extra
+  });
+  return true;
+}
 function clearBankKey(slot=state.slot){return CLEAR_BANK_V1.key+'.slot.'+slot}
 function bankStageClear(progress=stageProgressMetric(),prev=null){
   if(!CLEAR_BANK_V1.enabled)return null;
@@ -203,6 +235,7 @@ rep(Path('game.js'),marker,block+marker,'telemetry helpers')
 rep(Path('game.js'),
 """function loadSaveData(data){
   if(!data)return;
+  if(state.stage===1&&state.stageAttemptId&&!state.stageAttemptEnded)recordStage1AttemptEnd('load_save');
   state.slot=data.slot||1;state.stage=clamp(data.stage||1,1,10);state.score=data.score||0;state.lives=data.lives||3;
   state.unlocked=new Set([...(globalData().unlockedStages||[]),...(data.unlocked||[])]);state.continueCredits=1;
   startStage(state.stage,true);
@@ -227,9 +260,11 @@ rep(Path('game.js'),
   state.stage=clamp(n,1,10);state.mode='loading';showGame();closeModal();state.paused=true;updateHUD();toast(`STAGE ${state.stage} · ${STAGES[state.stage].name}`);""",
 """async function startStage(n,fromSave=false){
   if(mobileUXActive())resetMobileCaptureLock('stage_start');
+  const requestedStage=clamp(n,1,10);
+  if(state.stage===1&&state.stageAttemptId&&!state.stageAttemptEnded)recordStage1AttemptEnd(requestedStage===1?'restart':'next_stage',{next_stage:requestedStage});
   const startSource=state.pendingStageStartSource||(fromSave?'load_or_continue':'direct');
   state.pendingStageStartSource='direct';
-  state.stage=clamp(n,1,10);state.mode='loading';showGame();closeModal();state.paused=true;updateHUD();toast(`STAGE ${state.stage} · ${STAGES[state.stage].name}`);""",
+  state.stage=requestedStage;state.mode='loading';showGame();closeModal();state.paused=true;updateHUD();toast(`STAGE ${state.stage} · ${STAGES[state.stage].name}`);""",
 'stage source capture')
 
 rep(Path('game.js'),
@@ -361,6 +396,32 @@ rep(Path('game.js'),
 """  const run=()=>startStage(state.stage,false);""",
 """  const run=()=>{clearStageClearBank();state.pendingStageStartSource='next_stage';startStage(state.stage,false)};""",
 'next stage source')
+
+# Attempt-end and guard-pause hooks. These touch only Stage 1 telemetry/guard state.
+rep(Path('game.js'),
+"function showTitle(){\n",
+"function showTitle(){\n  recordStage1AttemptEnd('title');\n",
+'Stage 1 title exit telemetry')
+
+rep(Path('game.js'),
+"function showGameOver(){\n",
+"function showGameOver(){\n  recordStage1AttemptEnd('gameover');\n",
+'Stage 1 gameover telemetry')
+
+rep(Path('game.js'),
+"  if(state.mode!=='playing')return;if(mobileUXActive())resetMobileCaptureLock('pause');state.paused=true;",
+"  if(state.mode!=='playing')return;stage1SuspendEntryGuard('pause');if(mobileUXActive())resetMobileCaptureLock('pause');state.paused=true;",
+'Stage 1 guard pause freeze')
+
+# Page closure/background navigation becomes an explicit non-clear attempt outcome.
+p=root/'game.js'
+_g=p.read_text(encoding='utf-8')
+if "recordStage1AttemptEnd('pagehide')" not in _g:
+    anchor="window.addEventListener('blur',"
+    i=_g.find(anchor)
+    if i<0: raise SystemExit('stage1 retention patch failed: pagehide insertion anchor')
+    _g=_g[:i]+"window.addEventListener('pagehide',()=>recordStage1AttemptEnd('pagehide'));\n"+_g[i:]
+    p.write_text(_g,encoding='utf-8')
 
 # Dev-only build label. This branch is not deployed automatically.
 rep(Path('index.html'),

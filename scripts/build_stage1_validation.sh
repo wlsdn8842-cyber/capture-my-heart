@@ -99,5 +99,7 @@ grep -q "VERSION: '0.13.8-dev'" _site/config.js
 grep -q "cmh-core-v0.13.8-dev" _site/sw.js
 grep -q "CLEAR_BANK_V1={enabled:false" _site/game.js
 grep -q "stage1_attempt_end" _site/game.js
+grep -q "v0.13.8 hidden-screen safety" _site/styles.css
+grep -q ".screen.hidden{display:none!important;pointer-events:none!important}" _site/styles.css
 
 echo "DEV validation build ready: $(find _site -type f | wc -l) files"

@@ -76,5 +76,7 @@ jobs:
           name: stage1-retention-v0138-validation
           path: |
             validation-artifacts/
+            _site/game.js
+            _site/config.js
           if-no-files-found: warn
           retention-days: 14

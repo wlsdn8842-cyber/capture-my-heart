@@ -411,6 +411,19 @@ if "recordStage1AttemptEnd('pagehide')" not in _g:
     _g=_g[:i]+"window.addEventListener('pagehide',()=>recordStage1AttemptEnd('pagehide'));\n"+_g[i:]
     p.write_text(_g,encoding='utf-8')
 
+# Mobile CSS safety: existing landscape rules use display:* !important on .screen variants.
+# Preserve the intended hidden-state precedence so inactive screens cannot intercept touch.
+css=root/'styles.css'
+_css=css.read_text(encoding='utf-8')
+if '/* v0.13.8 hidden-screen safety */' not in _css:
+    _css += r'''
+/* v0.13.8 hidden-screen safety */
+@media (pointer:coarse),(max-width:800px){
+  .screen.hidden{display:none!important;pointer-events:none!important}
+}
+'''
+    css.write_text(_css,encoding='utf-8')
+
 # Dev-only build label. This branch is not deployed automatically.
 rep(Path('index.html'),
     '<div class="version">v0.13.7 bilingual</div>',

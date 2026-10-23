@@ -1,0 +1,80 @@
+name: "Stage 1 Retention v0.13.8 — VALIDATION ONLY"
+
+on:
+  push:
+    branches: ["dev/stage1-retention-v0.13.8"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: "stage1-retention-validation"
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout dev branch
+        uses: actions/checkout@v4
+
+      - name: Verify safety boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git branch --show-current)" = "dev/stage1-retention-v0.13.8"
+          MAIN_SHA="$(git ls-remote origin refs/heads/main | awk '{print $1}')"
+          BASE_SHA="$(git ls-remote origin refs/heads/baseline/pre-stage1-retention-v0.13.7 | awk '{print $1}')"
+          test "$MAIN_SHA" = "4be5a17ef2192cf6fdbf976e87ffa5d35447ce43"
+          test "$BASE_SHA" = "4be5a17ef2192cf6fdbf976e87ffa5d35447ce43"
+          echo "main and baseline remain at v0.13.7: $MAIN_SHA"
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Build dev validation site
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash scripts/build_stage1_validation.sh
+
+      - name: Install Chromium validation runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --no-save playwright@1.56.1
+          npx playwright install --with-deps chromium
+          node --check tests/stage1_retention_browser.mjs
+
+      - name: Run actual Chromium gameplay validation
+        shell: bash
+        env:
+          CI: "1"
+        run: |
+          set -euo pipefail
+          node tests/stage1_retention_browser.mjs
+
+      - name: Verify no Production endpoint was used by test collector
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f validation-artifacts/mock-events.jsonl ]; then
+            ! grep -q "supabase.co" validation-artifacts/mock-events.jsonl
+          fi
+          grep -q "CLEAR_BANK_V1={enabled:false" _site/game.js
+
+      - name: Upload validation evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stage1-retention-v0138-validation
+          path: |
+            validation-artifacts/
+          if-no-files-found: warn
+          retention-days: 14

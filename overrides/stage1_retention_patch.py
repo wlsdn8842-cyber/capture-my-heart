@@ -233,20 +233,8 @@ function advanceFromClearBank(){
 rep(Path('game.js'),marker,block+marker,'telemetry helpers')
 
 rep(Path('game.js'),
-"""function loadSaveData(data){
-  if(!data)return;
-  if(state.stage===1&&state.stageAttemptId&&!state.stageAttemptEnded)recordStage1AttemptEnd('load_save');
-  state.slot=data.slot||1;state.stage=clamp(data.stage||1,1,10);state.score=data.score||0;state.lives=data.lives||3;
-  state.unlocked=new Set([...(globalData().unlockedStages||[]),...(data.unlocked||[])]);state.continueCredits=1;
-  startStage(state.stage,true);
-}""",
-"""function loadSaveData(data){
-  if(!data)return;
-  state.slot=data.slot||1;state.stage=clamp(data.stage||1,1,10);state.score=data.score||0;state.lives=data.lives||3;
-  state.unlocked=new Set([...(globalData().unlockedStages||[]),...(data.unlocked||[])]);state.continueCredits=1;
-  state.pendingStageStartSource='load_save';
-  startStage(state.stage,true);
-}""",
+"function loadSaveData(data){\n  if(!data)return;",
+"function loadSaveData(data){\n  if(!data)return;\n  if(state.stage===1&&state.stageAttemptId&&!state.stageAttemptEnded)recordStage1AttemptEnd('load_save');\n  state.pendingStageStartSource='load_save';",
 'load source')
 
 rep(Path('game.js'),

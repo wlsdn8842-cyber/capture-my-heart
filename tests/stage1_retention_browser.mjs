@@ -265,7 +265,11 @@ await run('pc_tutorial_guard_first_capture',async()=>{
   await sleep(350);
   const runtimeDebug=await page.evaluate(()=>({tracks:window.__cmhTest?.tracks||[],shots:window.__cmhTest?.shots||[],version:window.CMH_CONFIG?.VERSION||'',body:document.body.className}));
   fs.writeFileSync(path.join(artifacts,'pc-runtime-debug.json'),JSON.stringify({runtimeDebug,pageErrors:errors,stored:scenarioEvents(currentScenario)},null,2));
-  const guard=await waitStored(currentScenario,'stage1_guard_end',e=>e.params.attempt_id===attemptId&&e.params.reason==='first_capture',3000);
+  // Analytics is intentionally queue-backed. A critical event that occurs while a batch
+  // is already flushing can remain in localStorage until the next flush trigger.
+  await sleep(500);
+  await flush(page);
+  const guard=await waitStored(currentScenario,'stage1_guard_end',e=>e.params.attempt_id===attemptId&&e.params.reason==='first_capture',5000);
   assert(cap.params.attempt_id===guard.params.attempt_id,'attempt ID mismatch between capture and guard end');
   await sleep(650);
   let shots=await page.evaluate(()=>window.__cmhTest?.shots||[]);

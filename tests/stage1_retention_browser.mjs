@@ -329,6 +329,14 @@ await run('mobile_tutorial_capture_toggle',async()=>{
   const context=await makeContext({viewport:{width:844,height:390},isMobile:true,hasTouch:true,userAgent:'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Chrome/125 Mobile Safari/537.36'});
   const page=await context.newPage();
   await gotoHome(page);
+  const hiddenScreen=await page.evaluate(()=>({
+    gameHidden:document.querySelector('#gameScreen')?.classList.contains('hidden'),
+    gameDisplay:getComputedStyle(document.querySelector('#gameScreen')).display,
+    titleDisplay:getComputedStyle(document.querySelector('#titleScreen')).display
+  }));
+  assert(hiddenScreen.gameHidden&&hiddenScreen.gameDisplay==='none','hidden game screen still intercepts mobile title input');
+  assert(hiddenScreen.titleDisplay!=='none','mobile title screen is not visible');
+  await page.screenshot({path:path.join(artifacts,'mobile-title-before-newgame.png'),fullPage:true});
   await startNewGame(page);
   await driveMobileTutorial(page);
   await page.screenshot({path:path.join(artifacts,'mobile-tutorial-complete.png'),fullPage:true});
